@@ -1,0 +1,42 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:/ti/ccs1240/ccs/tools/compiler/ti-cgt-c2000_22.6.0.LTS/include/",
+                "C:/ti/ccs1240/ccs/tools/compiler/ti-cgt-c2000_22.6.0.LTS/include/stlport",
+                "${workspaceFolder}/",
+                "${workspaceFolder}/algo/",
+                "${workspaceFolder}/cpu1/",
+                "${workspaceFolder}/cpu2/",
+                "${workspaceFolder}/cla12/",
+                "${workspaceFolder}/lib/",
+                "${workspaceFolder}/ti_driver/driverlib",
+                "${workspaceFolder}/ti_driver/common_include",
+                "${workspaceFolder}/ti_driver/header_include"
+            ],
+            "defines": [
+                "PROJ_SHARE",
+                "TYJ_TEST",
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "_SCD_ENABLE",
+                "__TMS320C2000__",
+                "__TMS320C28XX__",
+                "__TMS320C28XX_FPU32__",
+                "__TMS320C28XX_TMU__",
+                "CPU1",
+                "_FLASH"
+            ],
+            "compilerPath": "",
+            "intelliSenseMode": "gcc-arm",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "forcedInclude": [
+                "${workspaceFolder}/fake.h"
+            ]
+        }
+    ],
+    "version": 4
+}

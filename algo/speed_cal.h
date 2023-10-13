@@ -1,0 +1,38 @@
+#ifndef SPEED_CAL_H
+#define SPEED_CAL_H
+
+#include "algo_code_config.h"
+#include "filter.h"
+
+struct SpeedCal_struct
+{
+    float omegaE;
+    float omegaE_inv;
+    struct LPF_Ord1_2_struct* hLPF;
+    uint16_t lastThetaE;
+};
+
+static inline void speedCal_init(struct SpeedCal_struct* hSpeedCal, struct LPF_Ord1_2_struct* hLPF_init, uint16_t thetaE)
+{
+    hSpeedCal->omegaE = 0;
+    hSpeedCal->omegaE_inv = (12000.0 / 60.0 * MATLAB_PARA_pi2 * 2);
+    hSpeedCal->lastThetaE = thetaE;
+    hSpeedCal->hLPF = hLPF_init;
+}
+
+static inline float speedCal_update(struct SpeedCal_struct* hSpeedCal, uint16_t thetaE)
+{
+    int16_t deltaThetaERaw = thetaE - hSpeedCal->lastThetaE;
+    hSpeedCal->lastThetaE = thetaE;
+    float omegaDiffed = deltaThetaERaw * (float)(CTRL_FREQ * MATLAB_PARA_pi2 / 65536.0);
+    hSpeedCal->omegaE = LPF_Ord2_update_kahan(hSpeedCal->hLPF, omegaDiffed);
+    hSpeedCal->omegaE_inv = __divf32(1.0f, __fmax(hSpeedCal->omegaE, 100.0f));
+    return hSpeedCal->omegaE;
+}
+
+static inline float speedCal_getAns(struct SpeedCal_struct* hSpeedCal)
+{
+    return hSpeedCal->omegaE;
+}
+
+#endif // SPEED_CAL_H

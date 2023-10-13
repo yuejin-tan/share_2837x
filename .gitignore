@@ -1,0 +1,4 @@
+slprj/
+*.mex*
+*.slxc
+build_*/
