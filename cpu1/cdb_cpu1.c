@@ -37,12 +37,12 @@ void cdb_ack_cpu1(void)
 }
 
 // // Poll bit0 in CAN_NDAT_21 register to check completion of Reception
-// if (((HWREGH(CANA_BASE + CAN_O_ES) & CAN_ES_RXOK)) == CAN_ES_RXOK)
-// if ((HWREG_BP(CANA_BASE + CAN_O_NDAT_21)) == 0x00000001ul)
+// if (((HWREGH(CAN_CDB_BASE + CAN_O_ES) & CAN_ES_RXOK)) == CAN_ES_RXOK)
+// if ((HWREG_BP(CAN_CDB_BASE + CAN_O_NDAT_21)) == 0x00000001ul)
 // {
 //     // Get the received message
-//     CAN_readMessage(CANA_BASE, 3, rxMsgData);
+//     CAN_readMessage(CAN_CDB_BASE, 3, rxMsgData);
 // }
 
 // tx poll
-// while (((HWREGH(CANA_BASE + CAN_O_ES) & CAN_ES_TXOK)) != CAN_ES_TXOK)
+// while (((HWREGH(CAN_CDB_BASE + CAN_O_ES) & CAN_ES_TXOK)) != CAN_ES_TXOK)

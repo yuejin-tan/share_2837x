@@ -246,10 +246,10 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
 {
     // dump 指令接收
     // Poll bit0 in CAN_NDAT_21 register to check completion of Reception
-    if ((HWREG_BP(CANA_BASE + CAN_O_NDAT_21)) == 0x00000001ul)
+    if ((HWREG_BP(CAN_CDB_BASE + CAN_O_NDAT_21)) == 0x00000001ul)
     {
         // Get the received message
-        if (CAN_readMessage2(CANA_BASE, 1, hcdb->canRxBuff))
+        if (CAN_readMessage2(CAN_CDB_BASE, 1, hcdb->canRxBuff))
         {
             switch (hcdb->cdbSta)
             {
@@ -271,10 +271,10 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
 
     // trig 指令接收
     // Poll bit0 in CAN_NDAT_21 register to check completion of Reception
-    if ((HWREG_BP(CANA_BASE + CAN_O_NDAT_21)) == 0x00000002ul)
+    if ((HWREG_BP(CAN_CDB_BASE + CAN_O_NDAT_21)) == 0x00000002ul)
     {
         // Get the received message
-        if (CAN_readMessage2(CANA_BASE, 2, hcdb->canRxBuff))
+        if (CAN_readMessage2(CAN_CDB_BASE, 2, hcdb->canRxBuff))
         {
             switch (hcdb->trigSta)
             {
@@ -361,10 +361,10 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
 
     // 内存修改16b指令接收
     // Poll bit0 in CAN_NDAT_21 register to check completion of Reception
-    if ((HWREG_BP(CANA_BASE + CAN_O_NDAT_21)) == 0x00000004ul)
+    if ((HWREG_BP(CAN_CDB_BASE + CAN_O_NDAT_21)) == 0x00000004ul)
     {
         // Get the received message
-        if (CAN_readMessage2(CANA_BASE, 3, hcdb->canRxBuff))
+        if (CAN_readMessage2(CAN_CDB_BASE, 3, hcdb->canRxBuff))
         {
             // 简单粗暴地修改并给出应答
             uint32_t tarAddr = getUint32FromBuff(&hcdb->canRxBuff[0]);
@@ -395,7 +395,7 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
             loadUint32ToBuff(&hcdb->canTxBuff[0], tarAddr);
             loadUint16ToBuff(&hcdb->canTxBuff[4], tarVal);
             loadUint16ToBuff(&hcdb->canTxBuff[6], 0);
-            CAN_sendMessage2(CANA_BASE, 5, 5, hcdb->canTxBuff);
+            CAN_sendMessage2(CAN_CDB_BASE, 5, 5, hcdb->canTxBuff);
         }
         else
         {
@@ -406,10 +406,10 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
 
     // 内存修改32b指令接收
     // Poll bit0 in CAN_NDAT_21 register to check completion of Reception
-    if ((HWREG_BP(CANA_BASE + CAN_O_NDAT_21)) == 0x00000008ul)
+    if ((HWREG_BP(CAN_CDB_BASE + CAN_O_NDAT_21)) == 0x00000008ul)
     {
         // Get the received message
-        if (CAN_readMessage2(CANA_BASE, 4, hcdb->canRxBuff))
+        if (CAN_readMessage2(CAN_CDB_BASE, 4, hcdb->canRxBuff))
         {
             // 简单粗暴地修改并给出应答
             uint32_t tarAddr = getUint32FromBuff(&hcdb->canRxBuff[0]);
@@ -439,7 +439,7 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
 
             loadUint32ToBuff(&hcdb->canTxBuff[0], tarAddr);
             loadUint32ToBuff(&hcdb->canTxBuff[4], tarVal);
-            CAN_sendMessage2(CANA_BASE, 5, 5, hcdb->canTxBuff);
+            CAN_sendMessage2(CAN_CDB_BASE, 5, 5, hcdb->canTxBuff);
         }
         else
         {
@@ -450,10 +450,10 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
 
     // 内存读取指令接收
     // Poll bit0 in CAN_NDAT_21 register to check completion of Reception
-    if ((HWREG_BP(CANA_BASE + CAN_O_NDAT_21)) == 0x00000020ul)
+    if ((HWREG_BP(CAN_CDB_BASE + CAN_O_NDAT_21)) == 0x00000020ul)
     {
         // Get the received message
-        if (CAN_readMessage2(CANA_BASE, 6, hcdb->canRxBuff))
+        if (CAN_readMessage2(CAN_CDB_BASE, 6, hcdb->canRxBuff))
         {
             // 简单粗暴地修改并给出应答
             uint32_t tarAddr = getUint32FromBuff(&hcdb->canRxBuff[0]);
@@ -469,7 +469,7 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
                 loadUint16ToBuff(&hcdb->canTxBuff[4], *((uint16_t*)(void*)tarAddr));
                 loadUint16ToBuff(&hcdb->canTxBuff[6], 0);
             }
-            CAN_sendMessage2(CANA_BASE, 5, 5, hcdb->canTxBuff);
+            CAN_sendMessage2(CAN_CDB_BASE, 5, 5, hcdb->canTxBuff);
         }
         else
         {
@@ -558,7 +558,7 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
                 hcdb->dumpNowAddr++;
                 loadUint16ToBuff(&hcdb->canTxBuff[4 + jj * 2], tmpData);
             }
-            CAN_sendMessage2(CANA_BASE, 8 + ii, 8 + ii, hcdb->canTxBuff);
+            CAN_sendMessage2(CAN_CDB_BASE, 8 + ii, 8 + ii, hcdb->canTxBuff);
         }
 
         break;

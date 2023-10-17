@@ -16,6 +16,8 @@
 
 #define CDB_BUFF_ADDR ((void*)0x9000ul)
 
+#define CAN_CDB_BASE CANA_BASE
+
 #else
 
 #include "topCfg_local.h"

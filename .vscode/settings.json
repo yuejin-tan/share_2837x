@@ -37,6 +37,7 @@
         "comp.h": "c",
         "bsp_runtime2.h": "c",
         "cdb_cpu2.h": "c",
-        "main2.h": "c"
+        "main2.h": "c",
+        "topcfg.h": "c"
     }
 }

@@ -122,7 +122,9 @@ float TE_IQ_MTPA_2WAY_TAB[]={
 98.9228F,
 };
 
-#else
+#endif
+
+#if 0
 
  // Id=0情况下转矩和用两套绕组的总电流的对应关系，对应转矩为0，1，2……12
 float TE_IQ_ID0_2WAY_TAB[] = {
