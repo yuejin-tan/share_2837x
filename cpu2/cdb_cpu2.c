@@ -50,18 +50,18 @@ void cdb_init(struct cdb_struct* hcdb)
 // little endian
 static inline uint32_t getUint32FromBuff(uint16_t* buffStart)
 {
-    return ((uint32_t)0) |
+    return
         (((uint32_t)(buffStart[0] & 0xffu)) << 0) |
         (((uint32_t)(buffStart[1] & 0xffu)) << 8) |
         (((uint32_t)(buffStart[2] & 0xffu)) << 16) |
         (((uint32_t)(buffStart[3] & 0xffu)) << 24);
 }
 
-static inline uint32_t getUint16FromBuff(uint16_t* buffStart)
+static inline uint16_t getUint16FromBuff(uint16_t* buffStart)
 {
-    return ((uint32_t)0) |
-        (((uint32_t)(buffStart[0] & 0xffu)) << 0) |
-        (((uint32_t)(buffStart[1] & 0xffu)) << 8);
+    return
+        (((uint16_t)(buffStart[0] & 0xffu)) << 0) |
+        (((uint16_t)(buffStart[1] & 0xffu)) << 8);
 }
 
 static inline float getFloatFromBuff(uint16_t* buffStart)
@@ -113,132 +113,6 @@ static inline void rightShiftBuff(uint32_t* buff, uint32_t buffLenth, uint32_t r
     reverseBuff(buff, buffLenth - rShiftCnt, buffLenth - 1);
     reverseBuff(buff, 0, buffLenth - 1);
     return;
-}
-
-#pragma CODE_SECTION(CAN_readMessage2, "ramfuncs2");
-bool CAN_readMessage2(uint32_t base, uint32_t objID, uint16_t* msgData)
-{
-    bool status;
-    uint16_t msgCtrl = 0U;
-
-    //
-    // Set the Message Data A, Data B, and control values to be read
-    // on request for data from the message object.
-    //
-    // Transfer the message object to the message object IF register.
-    //
-    HWREG_BP(base + CAN_O_IF2CMD) =
-        ((uint32_t)CAN_IF2CMD_DATA_A | (uint32_t)CAN_IF2CMD_DATA_B |
-            (uint32_t)CAN_IF2CMD_CONTROL | (objID & CAN_IF2CMD_MSG_NUM_M) |
-            (uint32_t)CAN_IF2CMD_ARB);
-
-    //
-    // Wait for busy bit to clear
-    //
-    while ((HWREGH(base + CAN_O_IF2CMD) & CAN_IF2CMD_BUSY) == CAN_IF2CMD_BUSY)
-    {
-    }
-
-    //
-    // Read out the IF control Register.
-    //
-    msgCtrl = HWREGH(base + CAN_O_IF2MCTL);
-
-    //
-    // See if there is new data available.
-    //
-    if ((msgCtrl & CAN_IF2MCTL_NEWDAT) == CAN_IF2MCTL_NEWDAT)
-    {
-        //
-        // Read out the data from the CAN registers.
-        //
-        CAN_readDataReg(msgData, (base + CAN_O_IF2DATA),
-            ((uint32_t)msgCtrl & CAN_IF2MCTL_DLC_M));
-
-        status = true;
-
-        //
-        // Now clear out the new data flag
-        //
-        HWREG_BP(base + CAN_O_IF2CMD) = ((uint32_t)CAN_IF2CMD_TXRQST |
-            (objID & CAN_IF2CMD_MSG_NUM_M));
-
-        //
-        // Wait for busy bit to clear
-        //
-        while ((HWREGH(base + CAN_O_IF2CMD) & CAN_IF2CMD_BUSY) ==
-            CAN_IF2CMD_BUSY)
-        {
-        }
-    }
-    else
-    {
-        status = false;
-    }
-
-    return(status);
-}
-
-#pragma CODE_SECTION(CAN_sendMessage2, "ramfuncs2");
-void CAN_sendMessage2(uint32_t base, uint32_t objID, uint16_t msgLen, const uint16_t* msgData)
-{
-    uint32_t msgCtrl = 0U;
-
-    //
-    // Set IF command to read message object control value
-    //
-    // Set up the request for data from the message object.
-    // Transfer the message object to the IF register.
-    //
-    HWREG_BP(base + CAN_O_IF1CMD) = ((uint32_t)CAN_IF1CMD_CONTROL |
-        (objID & CAN_IF1CMD_MSG_NUM_M));
-
-    //
-    // Wait for busy bit to clear
-    //
-    while ((HWREGH(base + CAN_O_IF1CMD) & CAN_IF1CMD_BUSY) == CAN_IF1CMD_BUSY)
-    {
-    }
-
-    //
-    // Read IF message control
-    //
-    msgCtrl = HWREGH(base + CAN_O_IF1MCTL);
-
-    //
-    // Check provided DLC size with actual Message DLC size
-    //
-    ASSERT((msgCtrl & CAN_IF1MCTL_DLC_M) == msgLen);
-
-    //
-    // Write the data out to the CAN Data registers.
-    //
-    CAN_writeDataReg(msgData, (base + CAN_O_IF1DATA),
-        (msgCtrl & CAN_IF1MCTL_DLC_M));
-
-    //
-    //  Set Data to be transferred from IF
-    //
-    if (msgLen > 0U)
-    {
-        msgCtrl = CAN_IF1CMD_DATA_B | CAN_IF1CMD_DATA_A;
-    }
-    else
-    {
-        msgCtrl = 0U;
-    }
-
-    //
-    // Set Direction to write
-    //
-    // Set Tx Request Bit
-    //
-    // Transfer the message object to the message object specified by
-    // objID.
-    //
-    HWREG_BP(base + CAN_O_IF1CMD) = (msgCtrl | (uint32_t)CAN_IF1CMD_DIR |
-        (uint32_t)CAN_IF1CMD_TXRQST |
-        (objID & CAN_IF1CMD_MSG_NUM_M));
 }
 
 #pragma CODE_SECTION(cdb_prd_call, "ramfuncs2");
@@ -372,20 +246,7 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
 
             if (tarAddr >= 0x18000ul && tarAddr <= 0x19000ul)
             {
-                // 使用IPC告诉CPU1进行修改，死等回复
-                volatile struct IPC_REGS_CPU2* IpcRegCpu2 = (void*)&IpcRegs;
-                IpcRegCpu2->IPCSENDCOM = 1;
-                IpcRegCpu2->IPCSENDADDR = tarAddr;
-                IpcRegCpu2->IPCSENDDATA = tarVal;
-
-                IpcRegCpu2->IPCSET.bit.IPC0 = 1;
-                DELAY_US2(1);
-                while (IpcRegCpu2->IPCFLG.bit.IPC0)
-                {
-                    // wait
-                }
-
-                IpcRegCpu2->IPCSENDCOM = 0;
+                IPC_RamW16_Req_CPU2(tarAddr, tarVal);
             }
             else
             {
@@ -417,20 +278,7 @@ void cdb_prd_call(struct cdb_struct* hcdb, uint32_t* cdb_mBuff)
 
             if (tarAddr >= 0x18000ul && tarAddr <= 0x19000ul)
             {
-                // 使用IPC告诉CPU1进行修改，死等回复
-                volatile struct IPC_REGS_CPU2* IpcRegCpu2 = (void*)&IpcRegs;
-                IpcRegCpu2->IPCSENDCOM = 2;
-                IpcRegCpu2->IPCSENDADDR = tarAddr;
-                IpcRegCpu2->IPCSENDDATA = tarVal;
-
-                IpcRegCpu2->IPCSET.bit.IPC0 = 1;
-                DELAY_US2(1);
-                while (IpcRegCpu2->IPCFLG.bit.IPC0)
-                {
-                    // wait
-                }
-
-                IpcRegCpu2->IPCSENDCOM = 0;
+                IPC_RamW32_Req_CPU2(tarAddr, tarVal);
             }
             else
             {
