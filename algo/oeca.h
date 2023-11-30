@@ -11,30 +11,55 @@
 #include "math.h"
 #include "algo_code_config.h"
 
- // 用0-1代表0-2pi角度
+ /// 用0-1代表0-2pi角度
 
 struct OECA_struct
 {
-    float  kp_pos;
-    float  ki_pos;
-    float  intg_pos;
+    // PI
+    float  kp_eComp;
+    float  ki_eComp;
+    float  intg_eComp;
 
+    float theta_eComp;
+
+    // PLL
     float  kp_pll;
     float  ki_pll;
     float  intg_pll;
 
     float theta_pll;
 
+    // I-THETA SWEEP
+
+};
+
+struct Goertz_struct
+{
+    int k;
+    int N;
+
+    float cosVal;
+    float sinVal;
+
+    float wTab[3];
+
+    float AnsImag;
+    float AnsReal;
+
+    float AnsAbs;
+    float AnsArg;
 };
 
 static inline void OECA_init(struct OECA_struct* hOECA)
 {
-    hOECA->kp_pos = 2.0;
-    hOECA->ki_pos = 1.4e-3;
-    hOECA->intg_pos = 0;
+    hOECA->kp_eComp = 0.715;
+    hOECA->ki_eComp = 5.93e-4;
+    hOECA->intg_eComp = 0;
 
-    hOECA->kp_pll = 70.7;
-    hOECA->ki_pll = 0.524;
+    hOECA->theta_eComp = 0;
+
+    hOECA->kp_pll = 444.3;
+    hOECA->ki_pll = 3.29;
     hOECA->intg_pll = 0;
 
     hOECA->theta_pll = 0;
@@ -56,11 +81,55 @@ static inline float OECA_util_angle_norm2(float angle)
 static inline float OECA_pllCalc(struct OECA_struct* hOECA, float theta)
 {
     float deltaTheta = OECA_util_angle_norm2(theta - hOECA->theta_pll);
-    hOECA->intg_pos = hOECA->intg_pos + deltaTheta * hOECA->ki_pos;
-    float outPos = deltaTheta * hOECA->kp_pos + hOECA->intg_pos;
-    hOECA->theta_pll = OECA_util_angle_norm(hOECA->theta_pll + outPos * (float)(1.0 / CTRL_FREQ));
+    hOECA->intg_pll = hOECA->intg_pll + deltaTheta * hOECA->ki_pll;
+    float outPll = deltaTheta * hOECA->kp_pll + hOECA->intg_pll;
+    hOECA->theta_pll = OECA_util_angle_norm(hOECA->theta_pll + outPll * (float)(1.0 / CTRL_FREQ));
     return hOECA->theta_pll;
 }
 
+static inline float OECA_PICalc(struct OECA_struct* hOECA, float omegaIn)
+{
+    hOECA->intg_eComp = OECA_util_angle_norm(hOECA->intg_eComp + omegaIn * hOECA->ki_eComp);
+    hOECA->theta_eComp = OECA_util_angle_norm(hOECA->intg_eComp + omegaIn * hOECA->kp_eComp);
+    return OECA_util_angle_norm(hOECA->theta_eComp + 0.5f);
+}
+
+static inline void Goertz_init(struct Goertz_struct* hGeotz, int k, int N)
+{
+    hGeotz->k = k;
+    hGeotz->N = N;
+
+    hGeotz->sinVal = sinf((float)(MATLAB_PARA_pi2) * (float)k * (float)N);
+    hGeotz->cosVal = cosf((float)(MATLAB_PARA_pi2) * (float)k * (float)N);
+
+    hGeotz->wTab[0] = 0;
+    hGeotz->wTab[1] = 0;
+    hGeotz->wTab[2] = 0;
+
+    hGeotz->AnsImag = 0;
+    hGeotz->AnsReal = 0;
+    hGeotz->AnsAbs = 0;
+    hGeotz->AnsReal = 0;
+
+}
+
+static inline float Goertz_iter(struct Goertz_struct* hGeotz, float inVal)
+{
+    hGeotz->wTab[0] = inVal + 2.0f * hGeotz->cosVal * hGeotz->wTab[1] - hGeotz->wTab[2];
+    hGeotz->wTab[1] = hGeotz->wTab[0];
+    hGeotz->wTab[2] = hGeotz->wTab[1];
+
+    return hGeotz->wTab[0];
+}
+
+static inline void Goertz_getAns(struct Goertz_struct* hGeotz)
+{
+    float N_2 = 2.0f * __divf32(1.0f, (float)hGeotz->N);
+    hGeotz->AnsImag = N_2 * hGeotz->sinVal * hGeotz->wTab[1];
+    hGeotz->AnsReal = N_2 * (hGeotz->cosVal * hGeotz->wTab[1] - hGeotz->wTab[2]);
+
+    hGeotz->AnsArg = __atan2puf32(hGeotz->AnsImag, hGeotz->AnsReal);
+    hGeotz->AnsAbs = sqrtf(hGeotz->AnsImag * hGeotz->AnsImag + hGeotz->AnsReal * hGeotz->AnsReal);
+}
 
 #endif /* SHARE_ALGO_OECA_H_ */
