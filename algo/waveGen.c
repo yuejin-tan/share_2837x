@@ -7,7 +7,7 @@
 #include "waveGen.h"
 #include "algo_code_config.h"
 
-/// 指定查找表的大小
+ /// 指定查找表的大小
 #define TAB_DIV_QUARD (20)
 float sinTab[TAB_DIV_QUARD + 1] = {
     0.000000f,
@@ -41,7 +41,7 @@ float targetTria(float freq, float lastTarget, float amp, float offset)
     // 1 向上，0 向下
     static int direction = 1;
     float retVal;
-    float stepSize = (4.0f / CTRL_FREQ) * amp * freq;
+    float stepSize = (float)(4.0f / CTRL_FREQ) * amp * freq;
     if (direction)
     {
         // 向上
@@ -83,19 +83,19 @@ float targetSine(float freq, float amp, float offset)
     // 每周期分4段,查表
     static float now_tick = 0;
 
-    float inc = ((4.0f * TAB_DIV_QUARD) / CTRL_FREQ) * freq;
+    float inc = (float)(4.0f * TAB_DIV_QUARD / CTRL_FREQ) * freq;
 
     float tmp = now_tick + inc;
-    if (tmp > (4 * TAB_DIV_QUARD))
+    if (tmp > (float)(4 * TAB_DIV_QUARD))
     {
-        now_tick = tmp - (4 * TAB_DIV_QUARD);
+        now_tick = tmp - (float)(4 * TAB_DIV_QUARD);
     }
     else
     {
         now_tick = tmp;
     }
 
-    int section = now_tick / TAB_DIV_QUARD;
+    int section = now_tick * (float)(1.0f / TAB_DIV_QUARD);
     float index, sign;
     switch (section)
     {
@@ -104,15 +104,15 @@ float targetSine(float freq, float amp, float offset)
         sign = 1;
         break;
     case 1:
-        index = 2 * TAB_DIV_QUARD - now_tick;
+        index = (float)(2 * TAB_DIV_QUARD) - now_tick;
         sign = 1;
         break;
     case 2:
-        index = now_tick - 2 * TAB_DIV_QUARD;
+        index = now_tick - (float)(2 * TAB_DIV_QUARD);
         sign = -1;
         break;
     default:
-        index = 4 * TAB_DIV_QUARD - now_tick;
+        index = (float)(4 * TAB_DIV_QUARD) - now_tick;
         sign = -1;
         break;
     }

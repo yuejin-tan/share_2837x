@@ -31,15 +31,7 @@ static inline void thetaCal_init(struct ThataCal_struct* hThetaCal)
 
 static inline void thetaCal_setTheta(struct ThataCal_struct* hThetaCal, float theta)
 {
-    while (theta > 1.0f)
-    {
-        theta -= 1.0f;
-    }
-    while (theta < 0.0f)
-    {
-        theta += 1.0f;
-    }
-    hThetaCal->theta = theta;
+    hThetaCal->theta = theta - ceilf(theta);;
     hThetaCal->ifNeedTriCal = 1;
 }
 

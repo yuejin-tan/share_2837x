@@ -11,7 +11,17 @@
 #include "math.h"
 #include "algo_code_config.h"
 
+#include "filter.h"
+
  /// 用0-1代表0-2pi角度
+enum OECA_Sta
+{
+    OECA_stop = 0,
+    OECA_Isweep0,
+    OECA_Isweep1,
+    OECA_algo0,
+    OECA_algo1,
+};
 
 struct OECA_struct
 {
@@ -29,8 +39,28 @@ struct OECA_struct
 
     float theta_pll;
 
-    // I-THETA SWEEP
+    float lastThetaIn;
+    float omegaOB;
 
+    float lastOmegaOB;
+    float alphaOB;
+
+    // I-THETA SWEEP
+    float sweepCurrent;
+
+    float* dbgBuffPos;
+
+    int32_t sweepCnt;
+    int32_t sweepMax;
+
+    int sampDiv;
+    int sampCnt;
+
+    // control sta
+    int status;
+
+    struct LPF_Ord1_2_struct spdFilt1;
+    struct LPF_Ord1_2_struct spdFilt2;
 };
 
 struct Goertz_struct
@@ -64,6 +94,29 @@ static inline void OECA_init(struct OECA_struct* hOECA)
 
     hOECA->theta_pll = 0;
 
+    hOECA->sampCnt = 0;
+    hOECA->sampDiv = 40 * 5;
+
+    hOECA->sweepCurrent = 30;
+    hOECA->sweepCnt = 0;
+    hOECA->sweepMax = 100 / 5;
+
+    hOECA->dbgBuffPos = (void*)0xC000ul;
+
+    hOECA->lastThetaIn = 0;
+    hOECA->omegaOB = 0;
+    hOECA->lastOmegaOB = 0;
+    hOECA->alphaOB = 0;
+
+
+    // control sta
+    hOECA->status = OECA_stop;
+
+#define LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA 0.0017038908F, -1.9413394F, 0.94304332F
+
+    LPF_Ord1_2_init(&hOECA->spdFilt1, LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA);
+    LPF_Ord1_2_init(&hOECA->spdFilt2, LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA);
+
 }
 
 // 归一化到 0-1
@@ -94,13 +147,28 @@ static inline float OECA_PICalc(struct OECA_struct* hOECA, float omegaIn)
     return OECA_util_angle_norm(hOECA->theta_eComp + 0.5f);
 }
 
+static inline float OECA_omegaOB(struct OECA_struct* hOECA, float thetaIn)
+{
+    float omegaDiffed = OECA_util_angle_norm2(thetaIn - hOECA->lastThetaIn) * (float)(CTRL_FREQ * MATLAB_PARA_pi2 / 65536.0);
+    hOECA->lastThetaIn = thetaIn;
+    hOECA->omegaOB = LPF_Ord2_update_kahan(hOECA->spdFilt1, omegaDiffed);
+    return hOECA->omegaOB;
+}
+
+static inline float OECA_alphaOB(struct OECA_struct* hOECA)
+{
+
+}
+
 static inline void Goertz_init(struct Goertz_struct* hGeotz, int k, int N)
 {
     hGeotz->k = k;
     hGeotz->N = N;
 
-    hGeotz->sinVal = sinf((float)(MATLAB_PARA_pi2) * (float)k * (float)N);
-    hGeotz->cosVal = cosf((float)(MATLAB_PARA_pi2) * (float)k * (float)N);
+    float N_1 = __divf32(1.0f, (float)hGeotz->N);
+
+    hGeotz->sinVal = sinf((float)(MATLAB_PARA_pi2) * (float)k * (float)N_1);
+    hGeotz->cosVal = cosf((float)(MATLAB_PARA_pi2) * (float)k * (float)N_1);
 
     hGeotz->wTab[0] = 0;
     hGeotz->wTab[1] = 0;
@@ -116,15 +184,15 @@ static inline void Goertz_init(struct Goertz_struct* hGeotz, int k, int N)
 static inline float Goertz_iter(struct Goertz_struct* hGeotz, float inVal)
 {
     hGeotz->wTab[0] = inVal + 2.0f * hGeotz->cosVal * hGeotz->wTab[1] - hGeotz->wTab[2];
-    hGeotz->wTab[1] = hGeotz->wTab[0];
     hGeotz->wTab[2] = hGeotz->wTab[1];
+    hGeotz->wTab[1] = hGeotz->wTab[0];
 
     return hGeotz->wTab[0];
 }
 
 static inline void Goertz_getAns(struct Goertz_struct* hGeotz)
 {
-    float N_2 = 2.0f * __divf32(1.0f, (float)hGeotz->N);
+    float N_2 = __divf32(2.0f, (float)hGeotz->N);
     hGeotz->AnsImag = N_2 * hGeotz->sinVal * hGeotz->wTab[1];
     hGeotz->AnsReal = N_2 * (hGeotz->cosVal * hGeotz->wTab[1] - hGeotz->wTab[2]);
 

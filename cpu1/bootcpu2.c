@@ -70,6 +70,14 @@ void bootCpu2(void)
     extern uint16_t Ramfuncs2RunStart, Ramfuncs2LoadStart, Ramfuncs2LoadSize;
     extern uint16_t cpu2bootRunStart, cpu2bootLoadStart, cpu2bootLoadSize;
 
+    // 先复位CPU2
+    EALLOW;
+    DevCfgRegs.CPU2RESCTL.all = 0xa5a50001ul;
+    EDIS;
+    EALLOW;
+    DevCfgRegs.CPU2RESCTL.all = 0xa5a50000ul;
+    EDIS;
+
     // CPU2 boot程序
     memcpy(&cpu2bootRunStart, &cpu2bootLoadStart, (size_t)&cpu2bootLoadSize);
 
