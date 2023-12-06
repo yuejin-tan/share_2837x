@@ -61,21 +61,24 @@ struct OECA_struct
     float estAns1;
     float estAns2;
 
-    float* hDbgBuff;
-
     int sweepCnt;
     int sweepMax;
 
     int sampDiv;
     int sampCnt;
 
+    // debug
+    float* hDbgBuff;
+    int dbgDiv;
+    int dbgCnt;
+    int dbgPtr;
+
     // control sta
     int status;
-
     int modeCfg;
 
-    struct LPF_Ord1_2_struct spdFilt1;
-    struct LPF_Ord1_2_struct spdFilt2;
+    struct LPF_Ord1_2_struct* hFilter1;
+    struct LPF_Ord1_2_struct* hFilter2;
 };
 
 struct Goertz_struct
@@ -95,7 +98,7 @@ struct Goertz_struct
     float AnsArg;
 };
 
-static inline void OECA_init(struct OECA_struct* hOECA)
+static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct* hFilter1, struct LPF_Ord1_2_struct* hFilter2)
 {
     hOECA->kp_eComp = 0.715;
     hOECA->ki_eComp = 5.93e-4;
@@ -124,35 +127,40 @@ static inline void OECA_init(struct OECA_struct* hOECA)
     hOECA->estAns1 = 0;
     hOECA->estAns1 = 0;
 
-    hOECA->hDbgBuff = (float*)(void*)0xC000ul;
-
     hOECA->sweepCnt = 0;
     hOECA->sweepMax = 100 / 5;
 
     hOECA->sampCnt = 0;
     hOECA->sampDiv = 30 * 5;
 
-    // control sta
-    hOECA->status = OECA_stop;
+    hOECA->hDbgBuff = (float*)(void*)0xC000ul;
+    hOECA->dbgDiv = 30;
+    hOECA->dbgCnt = 0;
+    hOECA->dbgPtr = 0;
+
+    hOECA->status = OECA_Ready;
     hOECA->modeCfg = 0;
+
+    hOECA->hFilter1 = hFilter1;
+    hOECA->hFilter2 = hFilter2;
 
 #define LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA 0.0017038908F, -1.9413394F, 0.94304332F
 
-    LPF_Ord1_2_init(&hOECA->spdFilt1, LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA);
-    LPF_Ord1_2_init(&hOECA->spdFilt2, LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA);
+    LPF_Ord1_2_init(hOECA->hFilter1, LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA);
+    LPF_Ord1_2_init(hOECA->hFilter2, LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA);
 
 }
 
 // 归一化到 0-1
 static inline float OECA_util_angle_norm(float angle)
 {
-    return angle - ceilf(angle);
+    return angle - floorf(angle);
 }
 
 // 归一化到 -0.5-0.5
 static inline float OECA_util_angle_norm2(float angle)
 {
-    return angle - ceilf(angle + 0.5f);
+    return angle - floorf(angle + 0.5f);
 }
 
 static inline float OECA_pllCalc(struct OECA_struct* hOECA)
@@ -188,7 +196,7 @@ static inline float OECA_omegaOB(struct OECA_struct* hOECA, float thetaIn)
 {
     float omegaRaw = OECA_util_angle_norm2(thetaIn - hOECA->lastThetaIn) * (float)(CTRL_FREQ * MATLAB_PARA_pi2);
     hOECA->lastThetaIn = thetaIn;
-    hOECA->omegaOB = LPF_Ord2_update(&hOECA->spdFilt1, omegaRaw);
+    hOECA->omegaOB = LPF_Ord2_update(hOECA->hFilter1, omegaRaw);
     return hOECA->omegaOB;
 }
 
@@ -196,7 +204,7 @@ static inline float OECA_alphaOB(struct OECA_struct* hOECA)
 {
     float alphaRaw = (hOECA->omegaOB - hOECA->lastOmegaOB) * (float)(CTRL_FREQ);
     hOECA->lastOmegaOB = hOECA->omegaOB;
-    hOECA->alphaOB = LPF_Ord2_update(&hOECA->spdFilt2, alphaRaw);
+    hOECA->alphaOB = LPF_Ord2_update(hOECA->hFilter2, alphaRaw);
     return hOECA->alphaOB;
 }
 
