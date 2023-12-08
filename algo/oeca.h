@@ -17,7 +17,7 @@
 
 enum OECA_Sta
 {
-    OECA_Ready = 0,
+    OECA_ready = 0,
     OECA_Isweep0,
     OECA_Isweep1,
     OECA_algo0,
@@ -27,6 +27,7 @@ enum OECA_Sta
 #define OECA_M_AUTOALGO 1
 #define OECA_M_AUTO_PI_PARA 2
 #define OECA_M_AUTO_INIT_VAL 4
+#define OECA_M_AUTO_GOBACK 8
 
 struct OECA_struct
 {
@@ -52,14 +53,10 @@ struct OECA_struct
     float lastThetaIn;
     float omegaOB;
 
-    float lastOmegaOB;
-    float alphaOB;
-
     // I-THETA SWEEP
     float sweepCurrent;
 
     float estAns1;
-    float estAns2;
 
     int sweepCnt;
     int sweepMax;
@@ -78,7 +75,6 @@ struct OECA_struct
     int modeCfg;
 
     struct LPF_Ord1_2_struct* hFilter1;
-    struct LPF_Ord1_2_struct* hFilter2;
 };
 
 struct Goertz_struct
@@ -119,16 +115,12 @@ static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct
     hOECA->lastThetaIn = 0;
     hOECA->omegaOB = 0;
 
-    hOECA->lastOmegaOB = 0;
-    hOECA->alphaOB = 0;
-
     hOECA->sweepCurrent = 30;
 
     hOECA->estAns1 = 0;
-    hOECA->estAns1 = 0;
 
     hOECA->sweepCnt = 0;
-    hOECA->sweepMax = 100 / 5;
+    hOECA->sweepMax = 1000 / 5;
 
     hOECA->sampCnt = 0;
     hOECA->sampDiv = 30 * 5;
@@ -138,16 +130,14 @@ static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct
     hOECA->dbgCnt = 0;
     hOECA->dbgPtr = 0;
 
-    hOECA->status = OECA_Ready;
+    hOECA->status = OECA_ready;
     hOECA->modeCfg = 0;
 
     hOECA->hFilter1 = hFilter1;
-    hOECA->hFilter2 = hFilter2;
 
 #define LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA 0.0017038908F, -1.9413394F, 0.94304332F
 
     LPF_Ord1_2_init(hOECA->hFilter1, LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA);
-    LPF_Ord1_2_init(hOECA->hFilter2, LPF_2Ord_200Hz_T30000Hz_ksi0_70_PARA);
 
 }
 
@@ -198,14 +188,6 @@ static inline float OECA_omegaOB(struct OECA_struct* hOECA, float thetaIn)
     hOECA->lastThetaIn = thetaIn;
     hOECA->omegaOB = LPF_Ord2_update(hOECA->hFilter1, omegaRaw);
     return hOECA->omegaOB;
-}
-
-static inline float OECA_alphaOB(struct OECA_struct* hOECA)
-{
-    float alphaRaw = (hOECA->omegaOB - hOECA->lastOmegaOB) * (float)(CTRL_FREQ);
-    hOECA->lastOmegaOB = hOECA->omegaOB;
-    hOECA->alphaOB = LPF_Ord2_update(hOECA->hFilter2, alphaRaw);
-    return hOECA->alphaOB;
 }
 
 static inline void Goertz_init(struct Goertz_struct* hGeotz, int k, int N)
