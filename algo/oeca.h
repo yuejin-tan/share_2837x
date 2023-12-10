@@ -40,8 +40,11 @@ struct OECA_struct
 
     float T_sigma_eComp;
     float h_eComp;
+    float J_coeff;
 
     float PICurrent;
+
+    float maxOmegaMThd;
 
     // PLL
     float  kp_pll;
@@ -94,20 +97,22 @@ struct Goertz_struct
     float AnsArg;
 };
 
-static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct* hFilter1, struct LPF_Ord1_2_struct* hFilter2)
+static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct* hFilter1)
 {
-    hOECA->kp_eComp = 0.715;
-    hOECA->ki_eComp = 5.93e-4;
+    hOECA->kp_eComp = 0.1;
+    hOECA->ki_eComp = 2e-4;
     hOECA->intg_eComp = 0;
 
     hOECA->theta_eComp = 0;
 
-    hOECA->T_sigma_eComp = 1.0f / 2.0f / MATLAB_PARA_pi1 / (100.0f * 0.5f) + 1.0f / 6000.0f * 5.0f;
+    hOECA->T_sigma_eComp = 1.0f / 2.0f / MATLAB_PARA_pi1 / (100.0f * 0.5f) + 1.0f / 6000.0f * 5.0f + 1.0f / 300.0f;
     hOECA->h_eComp = 10.0f;
+    hOECA->J_coeff = 4.0f;
     hOECA->PICurrent = 30.0f;
+    hOECA->maxOmegaMThd = 0.05f;
 
-    hOECA->kp_pll = 444.3;
-    hOECA->ki_pll = 3.29;
+    hOECA->kp_pll = 177.0f;
+    hOECA->ki_pll = 0.53f;
     hOECA->intg_pll = 0;
 
     hOECA->theta_pll = 0;
@@ -203,11 +208,6 @@ static inline void Goertz_init(struct Goertz_struct* hGeotz, int k, int N)
     hGeotz->wTab[0] = 0;
     hGeotz->wTab[1] = 0;
     hGeotz->wTab[2] = 0;
-
-    hGeotz->AnsImag = 0;
-    hGeotz->AnsReal = 0;
-    hGeotz->AnsAbs = 0;
-    hGeotz->AnsReal = 0;
 
 }
 
