@@ -58,6 +58,7 @@ struct OECA_struct
 
     // I-THETA SWEEP
     float sweepCurrent;
+    float sweepTime;
 
     float estAns1;
 
@@ -66,6 +67,9 @@ struct OECA_struct
 
     int sampDiv;
     int sampCnt;
+
+    int32_t timeCnt;
+    int32_t timeCntMax;
 
     // debug
     float* hDbgBuff;
@@ -121,14 +125,18 @@ static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct
     hOECA->omegaOB = 0;
 
     hOECA->sweepCurrent = 30;
+    hOECA->sweepTime = 1.0f;
 
     hOECA->estAns1 = 0;
 
     hOECA->sweepCnt = 0;
-    hOECA->sweepMax = 1000 / 5;
+    hOECA->sweepMax = 100;
 
     hOECA->sampCnt = 0;
-    hOECA->sampDiv = 30 * 5;
+    hOECA->sampDiv = 30e3f * hOECA->sweepTime / hOECA->sweepMax + 0.5f;
+
+    hOECA->timeCnt = 0;
+    hOECA->timeCntMax = 30e3f * hOECA->sweepTime + 0.5f;
 
     hOECA->hDbgBuff = (float*)(void*)0xC000ul;
     hOECA->dbgDiv = 30;
@@ -169,9 +177,9 @@ static inline float OECA_pllCalc(struct OECA_struct* hOECA)
 
 static inline float OECA_PICalc(struct OECA_struct* hOECA)
 {
-    hOECA->intg_eComp = OECA_util_angle_norm(hOECA->intg_eComp + hOECA->omegaOB * hOECA->ki_eComp);
-    hOECA->theta_eComp = OECA_util_angle_norm(hOECA->intg_eComp + hOECA->omegaOB * hOECA->kp_eComp);
-    return OECA_util_angle_norm(hOECA->theta_eComp + 0.5f);
+    hOECA->intg_eComp = OECA_util_angle_norm(hOECA->intg_eComp - hOECA->omegaOB * hOECA->ki_eComp);
+    hOECA->theta_eComp = OECA_util_angle_norm(hOECA->intg_eComp - hOECA->omegaOB * hOECA->kp_eComp);
+    return OECA_util_angle_norm(0.5f - hOECA->theta_eComp);
 }
 
 static inline void OECA_algoStaSet(struct OECA_struct* hOECA, float initVal)
@@ -184,7 +192,7 @@ static inline void OECA_algoStaSet(struct OECA_struct* hOECA, float initVal)
 
 static inline float OECA_getSweepTheta(struct OECA_struct* hOECA)
 {
-    return __divf32((float)hOECA->sweepCnt, (float)hOECA->sweepMax);
+    return __divf32((float)hOECA->timeCnt, (float)hOECA->timeCntMax);
 }
 
 static inline float OECA_omegaOB(struct OECA_struct* hOECA, float thetaIn)
