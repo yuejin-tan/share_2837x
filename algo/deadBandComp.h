@@ -12,16 +12,22 @@
 
 static int dbVectNumTab[] = { 6,2,3,1,5,4,6,2,3,1,5,4,6,2,3,1,5,4 };
 
-static inline void dbComp(struct SVPWM_struct* hSVPWM, float thetaI_add330degPu, int compVal)
+static inline void dbComp(struct SVPWM_struct* hSVPWM, float thetaI_add30degPu, int compVal)
 {
-    int idx = thetaI_add330degPu * 6.0f;
-    int vectNum = dbVectNumTab[idx];
-    switch (vectNum)
+    int idx = thetaI_add30degPu * 6.0f;
+    switch (idx)
     {
-    case 1:
-        hSVPWM->epwmU += compVal;
+        // 考虑计算误差
+    case 6:
+    case 0:
+        hSVPWM->epwmU -= compVal;
         hSVPWM->epwmV += compVal;
-        hSVPWM->epwmW -= compVal;
+        hSVPWM->epwmW += compVal;
+        break;
+    case 1:
+        hSVPWM->epwmU -= compVal;
+        hSVPWM->epwmV -= compVal;
+        hSVPWM->epwmW += compVal;
         break;
     case 2:
         hSVPWM->epwmU += compVal;
@@ -34,19 +40,15 @@ static inline void dbComp(struct SVPWM_struct* hSVPWM, float thetaI_add330degPu,
         hSVPWM->epwmW -= compVal;
         break;
     case 4:
-        hSVPWM->epwmU -= compVal;
-        hSVPWM->epwmV += compVal;
-        hSVPWM->epwmW += compVal;
-        break;
-    case 5:
-        hSVPWM->epwmU -= compVal;
+        hSVPWM->epwmU += compVal;
         hSVPWM->epwmV += compVal;
         hSVPWM->epwmW -= compVal;
         break;
-    case 6:
+    case 5:
+    case -1:
         hSVPWM->epwmU -= compVal;
-        hSVPWM->epwmV -= compVal;
-        hSVPWM->epwmW += compVal;
+        hSVPWM->epwmV += compVal;
+        hSVPWM->epwmW -= compVal;
         break;
     }
 }
