@@ -31,8 +31,14 @@ static inline void thetaCal_init(struct ThataCal_struct* hThetaCal)
 
 static inline void thetaCal_setTheta(struct ThataCal_struct* hThetaCal, float theta)
 {
-    hThetaCal->theta = theta - ceilf(theta);;
+    hThetaCal->theta = theta - floorf(theta);;
     hThetaCal->ifNeedTriCal = 1;
+}
+
+// 归一化到 0-1
+static inline float thetaCal_util_angle_norm(float angle)
+{
+    return angle - floorf(angle);
 }
 
 static inline void thetaCal_setTheta_Uint(struct ThataCal_struct* hThetaCal, uint16_t theta_uint)

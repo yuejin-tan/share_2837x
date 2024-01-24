@@ -102,7 +102,7 @@ static inline float adrc_update(struct ADRC_struct* hADRC, float UdcRef, float U
 
 static inline float adrc_update2(struct ADRC_struct* hADRC, float UdcRef, float UdcFbk, float omega_m)
 {
-    hADRC->b0 = omega_m * ((float)(2.0f / MATLAB_PARA_C_dclink));
+    hADRC->b0 = omega_m * ((float)(2.0f / MATLAB_PARA_C_dclink)) * hADRC->b0_k;
     hADRC->b0_inv = 1.0f / hADRC->b0;
     hADRC->x1 = UdcFbk * UdcFbk;
     hADRC->e_u = hADRC->x1 - UdcRef * UdcRef;
