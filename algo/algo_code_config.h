@@ -54,6 +54,9 @@ static inline float __divf32(float num, float denom)
     return num / denom;
 }
 
+// 与simulink兼容
+#ifndef TYJ_IN_SIMULINK
+
 static inline float __fmax(float x, float y)
 {
     if (x >= y)
@@ -77,6 +80,7 @@ static inline float __fmin(float x, float y)
         return y;
     }
 }
+#endif
 
 static inline int __max(int x, int y)
 {
