@@ -10,8 +10,6 @@
 
 #include "SVPWM.h"
 
-static int dbVectNumTab[] = { 6,2,3,1,5,4,6,2,3,1,5,4,6,2,3,1,5,4 };
-
 static inline void dbComp(struct SVPWM_struct* hSVPWM, float thetaI_add30degPu, int compVal)
 {
     int idx = thetaI_add30degPu * 6.0f;
