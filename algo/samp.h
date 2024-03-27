@@ -1,10 +1,8 @@
 #ifndef SAMP_H
 #define SAMP_H
 
-#include "stdint.h"
-#include "algo_code_config.h"
-
 #include "math.h"
+#include "algo_code_config.h"
 
 static inline float getCurSI(int16_t adcVal, float offset)
 {
@@ -13,7 +11,7 @@ static inline float getCurSI(int16_t adcVal, float offset)
 
 static inline float getThetaESI(uint16_t RDCVal)
 {
-    float thetaE = RDCVal * (float)(MATLAB_PARA_p0 / MATLAB_PARA_RDC_gain / MATLAB_PARA_pi2);
+    float thetaE = RDCVal * (float)(MATLAB_PARA_p0 / MATLAB_PARA_RDC_gain / 2.0 / M_PI);
 
     while (thetaE > 1.0f)
     {

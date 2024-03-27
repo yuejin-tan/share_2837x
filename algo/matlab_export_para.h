@@ -3,6 +3,7 @@
 #ifdef PROJ_SHARE
 
 #define MATLAB_PARA_ifUseDoubleCtrlFreq 1
+#define MATLAB_PARA_ctrl_freq_mul 2
 #define MATLAB_PARA_PWM_clk 100000000.000000
 #define MATLAB_PARA_fs 20000.000000
 #define MATLAB_PARA_ctrl_freq 40000.000000

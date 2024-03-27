@@ -8,7 +8,6 @@
 #ifndef INCX_PRCTECT_H_
 #define INCX_PRCTECT_H_
 
-#include "stdint.h"
 #include "algo_code_config.h"
 
 enum PROTECT_TYPE
@@ -75,6 +74,21 @@ static inline int16_t protectCalc_INTG(struct protect_struct* hProtect, float va
     return ret;
 }
 
+static inline int16_t protectCalc_INTG2(struct protect_struct* hProtect, float val)
+{
+    int16_t ret = 0;
+
+    float ans = val - hProtect->intg_base;
+    hProtect->intg_val += ans * vCTRL_TS;
+    hProtect->intg_val = __fmax(hProtect->intg_val, 0);
+    if (hProtect->intg_val > hProtect->intg_max)
+    {
+        ret += PRCT_T_INTG;
+    }
+
+    return ret;
+}
+
 static inline int16_t protectCalc_FOLW(struct protect_struct* hProtect, float val, float folwTarget)
 {
     int16_t ret = 0;
@@ -82,6 +96,23 @@ static inline int16_t protectCalc_FOLW(struct protect_struct* hProtect, float va
     float delta = fabsf(val - folwTarget);
     float intg = hProtect->follow_intg_val;
     intg += (delta - hProtect->follow_Dmax);
+    intg = __fmax(intg, 0);
+    if (intg > hProtect->follow_intg_max)
+    {
+        ret += PRCT_T_FOLW;
+    }
+    hProtect->follow_intg_val = intg;
+
+    return ret;
+}
+
+static inline int16_t protectCalc_FOLW2(struct protect_struct* hProtect, float val, float folwTarget)
+{
+    int16_t ret = 0;
+
+    float delta = fabsf(val - folwTarget);
+    float intg = hProtect->follow_intg_val;
+    intg += (delta - hProtect->follow_Dmax) * vCTRL_TS;
     intg = __fmax(intg, 0);
     if (intg > hProtect->follow_intg_max)
     {

@@ -5,7 +5,7 @@
  *      Author: t
  */
 
-#include"interp_tab.h"
+#include "interp_tab.h"
 #include "algo_code_config.h"
 
 #ifdef TYJ_TEST

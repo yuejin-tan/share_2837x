@@ -8,6 +8,8 @@
 #ifndef INCX_WAVEGEN_H_
 #define INCX_WAVEGEN_H_
 
+#include "algo_code_config.h"
+
  /**
   * @brief 斜坡给定函数
   * @details 根据lastTarget来判定下次三角波值

@@ -1,7 +1,6 @@
 #ifndef INCX_SVPWM_H_
 #define INCX_SVPWM_H_
 
-#include "stdint.h"
 #include "algo_code_config.h"
 
 struct ThataCal_struct;
@@ -35,9 +34,9 @@ static inline void SVPWM_init(struct SVPWM_struct* hSVPWM, float Udc)
     hSVPWM->Ub = Udc * 0.5f;
     hSVPWM->Uc = Udc * 0.5f;
 
-    hSVPWM->epwmU = PWM_CMP_DEFAILT_VAL;
-    hSVPWM->epwmV = PWM_CMP_DEFAILT_VAL;
-    hSVPWM->epwmW = PWM_CMP_DEFAILT_VAL;
+    hSVPWM->epwmU = vPWM_CMP_DEFAILT_VAL_I;
+    hSVPWM->epwmV = vPWM_CMP_DEFAILT_VAL_I;
+    hSVPWM->epwmW = vPWM_CMP_DEFAILT_VAL_I;
 }
 
 
@@ -142,9 +141,9 @@ static inline void SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float U
         break;
     }
 
-    hSVPWM->epwmU = hSVPWM->Ua * hSVPWM->Udc_inv * (float)PWM_LOAD_VAL + 0.4f;
-    hSVPWM->epwmV = hSVPWM->Ub * hSVPWM->Udc_inv * (float)PWM_LOAD_VAL + 0.4f;
-    hSVPWM->epwmW = hSVPWM->Uc * hSVPWM->Udc_inv * (float)PWM_LOAD_VAL + 0.4f;
+    hSVPWM->epwmU = hSVPWM->Ua * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.4f;
+    hSVPWM->epwmV = hSVPWM->Ub * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.4f;
+    hSVPWM->epwmW = hSVPWM->Uc * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.4f;
 }
 
 #endif /* INCX_SVPWM_H_ */

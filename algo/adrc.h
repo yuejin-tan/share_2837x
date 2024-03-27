@@ -8,8 +8,6 @@
 #ifndef ALGO_CODE_INC_ADRC_H_
 #define ALGO_CODE_INC_ADRC_H_
 
-
-#include "stdint.h"
 #include "math.h"
 #include "algo_code_config.h"
 

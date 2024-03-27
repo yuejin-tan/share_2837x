@@ -11,7 +11,6 @@ struct ThataCal_struct
 };
 
 #include "math.h"
-#include "stdint.h"
 #include "algo_code_config.h"
 
 static inline void _calSinCos(struct ThataCal_struct* hThetaCal)

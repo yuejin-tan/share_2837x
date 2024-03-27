@@ -41,7 +41,7 @@ float targetTria(float freq, float lastTarget, float amp, float offset)
     // 1 向上，0 向下
     static int direction = 1;
     float retVal;
-    float stepSize = (float)(4.0f / CTRL_FREQ) * amp * freq;
+    float stepSize = 4.0f * vCTRL_TS * amp * freq;
     if (direction)
     {
         // 向上
@@ -83,7 +83,7 @@ float targetSine(float freq, float amp, float offset)
     // 每周期分4段,查表
     static float now_tick = 0;
 
-    float inc = (float)(4.0f * TAB_DIV_QUARD / CTRL_FREQ) * freq;
+    float inc = (float)(4.0f * TAB_DIV_QUARD) * vCTRL_TS * freq;
 
     float tmp = now_tick + inc;
     if (tmp > (float)(4 * TAB_DIV_QUARD))

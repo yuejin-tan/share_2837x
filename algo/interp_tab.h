@@ -8,7 +8,7 @@
 #ifndef ALGO_CODE_INC_INTERP_TAB_H_
 #define ALGO_CODE_INC_INTERP_TAB_H_
 
-#include "stdint.h"
+#include "algo_code_config.h"
 
 #define TE_IQ_ID0_2WAY_TAB_OFFSET 12.0F
 #define TE_IQ_ID0_2WAY_TAB_MAX 24

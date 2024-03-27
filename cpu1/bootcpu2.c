@@ -74,6 +74,7 @@ void bootCpu2(void)
     EALLOW;
     DevCfgRegs.CPU2RESCTL.all = 0xa5a50001ul;
     EDIS;
+    DELAY_US(1);
     EALLOW;
     DevCfgRegs.CPU2RESCTL.all = 0xa5a50000ul;
     EDIS;

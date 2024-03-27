@@ -1,7 +1,6 @@
 #ifndef COMP_H
 #define COMP_H
 
-#include "stdint.h"
 #include "algo_code_config.h"
 
 static inline float UdComp(float Ud, float omegaE, float iq)
@@ -26,12 +25,12 @@ static inline float getUqCompVal(float omegaE, float id)
 
 static inline float thetaComp(float theta, float omegaE)
 {
-    return theta + omegaE * (float)(1.5f / CTRL_FREQ / MATLAB_PARA_pi2);
+    return theta + omegaE * (float)(1.5 / 2.0 / M_PI) * vCTRL_TS;
 }
 
 static inline float IqCompVal(float omegaE_inv, float Udc, float Idc)
 {
-    return Udc * Idc * omegaE_inv * (float)(1.0f / 1.5f / MATLAB_PARA_faif);
+    return Udc * Idc * omegaE_inv * (float)(1.0 / 1.5 / MATLAB_PARA_faif);
 }
 
 #endif // COMP_H

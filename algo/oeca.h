@@ -171,7 +171,7 @@ static inline float OECA_pllCalc(struct OECA_struct* hOECA)
     float deltaTheta = OECA_util_angle_norm2(hOECA->theta_eComp - hOECA->theta_pll);
     hOECA->intg_pll = hOECA->intg_pll + deltaTheta * hOECA->ki_pll;
     float outPll = deltaTheta * hOECA->kp_pll + hOECA->intg_pll;
-    hOECA->theta_pll = OECA_util_angle_norm(hOECA->theta_pll + outPll * (float)(1.0 / CTRL_FREQ));
+    hOECA->theta_pll = OECA_util_angle_norm(hOECA->theta_pll + outPll * vCTRL_TS);
     return hOECA->theta_pll;
 }
 
@@ -197,7 +197,7 @@ static inline float OECA_getSweepTheta(struct OECA_struct* hOECA)
 
 static inline float OECA_omegaOB(struct OECA_struct* hOECA, float thetaIn)
 {
-    float omegaRaw = OECA_util_angle_norm2(thetaIn - hOECA->lastThetaIn) * (float)(CTRL_FREQ * MATLAB_PARA_pi2);
+    float omegaRaw = OECA_util_angle_norm2(thetaIn - hOECA->lastThetaIn) * vCTRL_FREQ * (float)(MATLAB_PARA_pi2);
     hOECA->lastThetaIn = thetaIn;
     hOECA->omegaOB = LPF_Ord2_update(hOECA->hFilter1, omegaRaw);
     return hOECA->omegaOB;
