@@ -233,4 +233,10 @@ static inline void PIctrl_setKpKi_bcalc(struct PIctrl_struct* hPIctrl, float new
     hPIctrl->kb = newKi;
 }
 
+static inline void PIctrl_svpwmBoundSet(struct PIctrl_struct* hPIctrl, float newUdc)
+{
+    hPIctrl->max = newUdc;
+    hPIctrl->min = -newUdc;
+}
+
 #endif /* INCX_PID_H_ */
