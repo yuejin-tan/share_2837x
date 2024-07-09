@@ -9,6 +9,7 @@
 
 // PWM模块的输入时钟
 #define PWM_CLK (MATLAB_PARA_PWM_clk)
+#define ECAP_CLK (MATLAB_PARA_PWM_clk * 2)
 // PWM频率
 #define PWM_FREQ (MATLAB_PARA_fs)
 // 控制频率
@@ -21,6 +22,7 @@
 extern float vCTRL_FREQ;
 extern float vCTRL_TS;
 extern float vPWM_LOAD_VAL;
+extern float vECAP_HALF_VAL_INV;
 
 extern int16_t vPWM_LOAD_VAL_I;
 extern int16_t vPWM_CMP_DEFAILT_VAL_I;
@@ -31,6 +33,7 @@ static inline void algo_clk_cfg(uint16_t pwm_freq)
     vCTRL_TS = 1.0f / vCTRL_FREQ;
     vPWM_LOAD_VAL_I = ((uint32_t)PWM_CLK) / ((uint32_t)2 * pwm_freq);
     vPWM_LOAD_VAL = vPWM_LOAD_VAL_I;
+    vECAP_HALF_VAL_INV = 2 * pwm_freq / ECAP_CLK;
     vPWM_CMP_DEFAILT_VAL_I = vPWM_LOAD_VAL_I / 2;
 }
 
