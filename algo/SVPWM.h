@@ -40,7 +40,7 @@ static inline void SVPWM_init(struct SVPWM_struct* hSVPWM, float Udc)
 }
 
 
-
+// 带有过调制的SVPWM计算，改自袁雷一书
 static inline void SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float Ube)
 {
 #define SQRT_3 1.73205F
