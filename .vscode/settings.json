@@ -39,5 +39,8 @@
         "cdb_cpu2.h": "c",
         "main2.h": "c",
         "topcfg.h": "c"
-    }
+    },
+    "cmake.sourceDirectory": "C:/Users/t/workspace_v12/share_2837x/.test",
+    "cmake.buildDirectory": "${workspaceFolder}/.test/build_cmake",
+    "cmake.generator": "Unix Makefiles"
 }
