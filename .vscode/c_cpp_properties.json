@@ -3,8 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:/ti/ccs1240/ccs/tools/compiler/ti-cgt-c2000_22.6.0.LTS/include/",
-                "C:/ti/ccs1240/ccs/tools/compiler/ti-cgt-c2000_22.6.0.LTS/include/stlport",
+                "C:/ti/ccs1280/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/include/",
+                "C:/ti/ccs1280/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/include/stlport",
                 "${workspaceFolder}/",
                 "${workspaceFolder}/algo/",
                 "${workspaceFolder}/cpu1/",
