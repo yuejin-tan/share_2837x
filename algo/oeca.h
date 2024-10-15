@@ -109,10 +109,10 @@ static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct
 
     hOECA->theta_eComp = 0;
 
-    hOECA->T_sigma_eComp = 1.0f / 2.0f / MATLAB_PARA_pi1 / (100.0f * 0.5f) + 1.0f / 6000.0f * 5.0f + 1.0f / 300.0f;
+    hOECA->T_sigma_eComp = 1.0f / 2.0f / M_PI / (100.0f * 0.5f) + 1.0f / 6000.0f * 5.0f + 1.0f / 300.0f;
     hOECA->h_eComp = 10.0f;
-    hOECA->J_coeff = 4.0f;
-    hOECA->PICurrent = 30.0f;
+    hOECA->J_coeff = 1.0f;
+    hOECA->PICurrent = 15.0f;
     hOECA->maxOmegaMThd = 0.05f;
 
     hOECA->kp_pll = 177.0f;
@@ -124,7 +124,7 @@ static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct
     hOECA->lastThetaIn = 0;
     hOECA->omegaOB = 0;
 
-    hOECA->sweepCurrent = 30;
+    hOECA->sweepCurrent = 15.0f;
     hOECA->sweepTime = 1.0f;
 
     hOECA->estAns1 = 0;
@@ -197,7 +197,7 @@ static inline float OECA_getSweepTheta(struct OECA_struct* hOECA)
 
 static inline float OECA_omegaOB(struct OECA_struct* hOECA, float thetaIn)
 {
-    float omegaRaw = OECA_util_angle_norm2(thetaIn - hOECA->lastThetaIn) * vCTRL_FREQ * (float)(MATLAB_PARA_pi2);
+    float omegaRaw = OECA_util_angle_norm2(thetaIn - hOECA->lastThetaIn) * vCTRL_FREQ * (float)(M_PI * 2.0);
     hOECA->lastThetaIn = thetaIn;
     hOECA->omegaOB = LPF_Ord2_update(hOECA->hFilter1, omegaRaw);
     return hOECA->omegaOB;
