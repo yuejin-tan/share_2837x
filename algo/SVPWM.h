@@ -141,9 +141,9 @@ static inline void SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float U
         break;
     }
 
-    hSVPWM->epwmU = hSVPWM->Ua * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.4f;
-    hSVPWM->epwmV = hSVPWM->Ub * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.4f;
-    hSVPWM->epwmW = hSVPWM->Uc * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.4f;
+    hSVPWM->epwmU = hSVPWM->Ua * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.5f;
+    hSVPWM->epwmV = hSVPWM->Ub * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.5f;
+    hSVPWM->epwmW = hSVPWM->Uc * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.5f;
 }
 
 #endif /* INCX_SVPWM_H_ */
