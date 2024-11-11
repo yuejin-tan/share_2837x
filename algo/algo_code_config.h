@@ -72,8 +72,8 @@ static inline float __divf32(float num, float denom)
     return num / denom;
 }
 
-// 与simulink兼容
-#ifndef TYJ_IN_SIMULINK
+// 与MATLAB MEX兼容
+#ifndef TYJ_IN_MATLABMEX
 
 static inline float __fmax(float x, float y)
 {
@@ -98,7 +98,6 @@ static inline float __fmin(float x, float y)
         return y;
     }
 }
-#endif
 
 static inline int __max(int x, int y)
 {
@@ -126,12 +125,17 @@ static inline int __min(int x, int y)
 
 #endif
 
+#else
+
+// 不在仿真环境中
 // RAM函数设置
 #define IF_USE_HIGH_VER_TI_COMPLIER 1
 #if IF_USE_HIGH_VER_TI_COMPLIER
 #define MEM_MACRO ".TI.ramfunc"
 #else
 #define MEM_MACRO "ramfuncs"
+#endif
+
 #endif
 
 #endif
