@@ -37,10 +37,11 @@ static inline void algo_clk_cfg(uint16_t pwm_freq)
     vPWM_CMP_DEFAILT_VAL_I = vPWM_LOAD_VAL_I / 2;
 }
 
-// 补偿内联函数方便仿真
 #ifdef TYJ_TEST
 
 #include "math.h"
+
+// ccs有，但matlab和simulink都没有
 
 static inline float __div2pif32(float src)
 {
@@ -72,9 +73,6 @@ static inline float __divf32(float num, float denom)
     return num / denom;
 }
 
-// 与MATLAB MEX兼容
-#ifndef TYJ_IN_MATLABMEX
-
 static inline float __fmax(float x, float y)
 {
     if (x >= y)
@@ -98,6 +96,14 @@ static inline float __fmin(float x, float y)
         return y;
     }
 }
+
+#ifdef TYJ_IN_MATLABMEX
+
+// ccs有，matlab没有，simulink有
+
+#else
+
+// ccs有，matlab有，simulink没有
 
 static inline int __max(int x, int y)
 {
