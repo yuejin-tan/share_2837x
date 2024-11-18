@@ -74,9 +74,9 @@ static inline void dbComp2_down(struct SVPWM_struct* hSVPWM, struct Trans_struct
 
 static inline void dbComp2_all(struct SVPWM_struct* hSVPWM, struct Trans_struct* hIuvw, float Ithd_1, float compVal)
 {
-    hSVPWM->epwmU -= (int16_t)(__fmin(__fmax(hIuvw->U * Ithd_1, 0.0f), 1.0f) * compVal + 0.5f);
-    hSVPWM->epwmV -= (int16_t)(__fmin(__fmax(hIuvw->V * Ithd_1, 0.0f), 1.0f) * compVal + 0.5f);
-    hSVPWM->epwmW -= (int16_t)(__fmin(__fmax(hIuvw->W * Ithd_1, 0.0f), 1.0f) * compVal + 0.5f);
+    hSVPWM->epwmU -= (int16_t)(__fmin(__fmax(hIuvw->U * Ithd_1, -0.5f), 0.5f) * compVal + 0.5f);
+    hSVPWM->epwmV -= (int16_t)(__fmin(__fmax(hIuvw->V * Ithd_1, -0.5f), 0.5f) * compVal + 0.5f);
+    hSVPWM->epwmW -= (int16_t)(__fmin(__fmax(hIuvw->W * Ithd_1, -0.5f), 0.5f) * compVal + 0.5f);
 }
 
 
