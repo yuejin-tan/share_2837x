@@ -14,8 +14,8 @@
 #define PWM_FREQ (MATLAB_PARA_fs)
 // 控制频率
 #define CTRL_FREQ (MATLAB_PARA_ctrl_freq)
-// PWM装载值
-#define PWM_LOAD_VAL (PWM_CLK / PWM_FREQ / 2)
+// PWM装载值，为简化后续程序处理，近似到邻近的偶数上去
+#define PWM_LOAD_VAL ((((int32_t)(PWM_CLK / PWM_FREQ / 2))/2)*2)
 // PWM默认比较值
 #define PWM_CMP_DEFAILT_VAL (PWM_LOAD_VAL / 2)
 
@@ -31,7 +31,8 @@ static inline void algo_clk_cfg(uint16_t pwm_freq)
 {
     vCTRL_FREQ = pwm_freq * MATLAB_PARA_ctrl_freq_mul;
     vCTRL_TS = 1.0f / vCTRL_FREQ;
-    vPWM_LOAD_VAL_I = ((uint32_t)PWM_CLK) / ((uint32_t)2 * pwm_freq);
+    // 为简化后续程序处理，近似到邻近的偶数上去
+    vPWM_LOAD_VAL_I = ((((uint32_t)PWM_CLK) / ((uint32_t)2 * pwm_freq)) / 2) * 2;
     vPWM_LOAD_VAL = vPWM_LOAD_VAL_I;
     vECAP_1CYCLE_VAL_INV = MATLAB_PARA_ctrl_freq_mul * pwm_freq / ECAP_CLK;
     vPWM_CMP_DEFAILT_VAL_I = vPWM_LOAD_VAL_I / 2;

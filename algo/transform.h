@@ -134,5 +134,24 @@ static inline void trans2_dq2uvw(struct Trans_struct* hTrans, struct ThataCal_st
     trans2_albe2uvw(hTrans);
 }
 
+// -------- util ----------
+
+static inline void transX_uv02w(struct Trans_struct* hTrans)
+{
+    const float matrix_coeff_3 = 3.0f;
+    hTrans->W = matrix_coeff_3 * hTrans->abdq0 - hTrans->U - hTrans->V;
+}
+
+static inline void transX_uw02v(struct Trans_struct* hTrans)
+{
+    const float matrix_coeff_3 = 3.0f;
+    hTrans->V = matrix_coeff_3 * hTrans->abdq0 - hTrans->U - hTrans->W;
+}
+
+static inline void transX_vw02u(struct Trans_struct* hTrans)
+{
+    const float matrix_coeff_3 = 3.0f;
+    hTrans->U = matrix_coeff_3 * hTrans->abdq0 - hTrans->V - hTrans->W;
+}
 
 #endif // TRANSFORM_H
