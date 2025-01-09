@@ -13,21 +13,21 @@ struct LMSanf_struct
 
 static inline void LMSanfInit(struct LMSanf_struct* hLMSanf)
 {
+    hLMSanf->W[0] = 0;
     hLMSanf->W[1] = 0;
     hLMSanf->W[2] = 0;
     hLMSanf->W[3] = 0;
     hLMSanf->W[4] = 0;
     hLMSanf->W[5] = 0;
-    hLMSanf->W[6] = 0;
 
     hLMSanf->mu = 0.001;
 }
 
 static inline float LMSanfUpdate(struct LMSanf_struct* hLMSanf, uint16_t angle, float input)
 {
-    float thetaPU1 = ((uint16_t)(angle * (uint32_t)1)) * (float)(1.0f / 65536.0f);
-    float thetaPU2 = ((uint16_t)(angle * (uint32_t)2)) * (float)(1.0f / 65536.0f);
-    float thetaPU4 = ((uint16_t)(angle * (uint32_t)4)) * (float)(1.0f / 65536.0f);
+    float thetaPU1 = ((uint16_t)(angle * 1)) * (float)(1.0f / 65536.0f);
+    float thetaPU2 = ((uint16_t)(angle * 2)) * (float)(1.0f / 65536.0f);
+    float thetaPU4 = ((uint16_t)(angle * 4)) * (float)(1.0f / 65536.0f);
     // [cos1 sin1 cos2 sin2 cos4 sin4]
     float X[] = { __cospuf32(thetaPU1),__sinpuf32(thetaPU1),__cospuf32(thetaPU2),__sinpuf32(thetaPU2),__cospuf32(thetaPU4),__sinpuf32(thetaPU4), };
 
@@ -56,9 +56,9 @@ static inline float LMSanfUpdate(struct LMSanf_struct* hLMSanf, uint16_t angle, 
 
 static inline uint16_t thetaHarComp(struct LMSanf_struct* hLMSanf, uint16_t angle)
 {
-    float thetaPU1 = ((uint16_t)(angle * (uint32_t)1)) * (float)(1.0f / 65536.0f);
-    float thetaPU2 = ((uint16_t)(angle * (uint32_t)2)) * (float)(1.0f / 65536.0f);
-    float thetaPU4 = ((uint16_t)(angle * (uint32_t)4)) * (float)(1.0f / 65536.0f);
+    float thetaPU1 = ((uint16_t)(angle * 1)) * (float)(1.0f / 65536.0f);
+    float thetaPU2 = ((uint16_t)(angle * 2)) * (float)(1.0f / 65536.0f);
+    float thetaPU4 = ((uint16_t)(angle * 4)) * (float)(1.0f / 65536.0f);
     // [cos1 sin1 cos2 sin2 cos4 sin4]
     float X[] = { __cospuf32(thetaPU1),__sinpuf32(thetaPU1),__cospuf32(thetaPU2),__sinpuf32(thetaPU2),__cospuf32(thetaPU4),__sinpuf32(thetaPU4), };
 
@@ -74,5 +74,11 @@ static inline uint16_t thetaHarComp(struct LMSanf_struct* hLMSanf, uint16_t angl
 
     y *= (float)(65536.0 / M_PI / 2.0);
 
-    return y + 0.49999f;
+    return y;
+}
+
+static inline float harmInjUtil(uint16_t anglPuQ16, uint16_t order, float Acos, float Asin)
+{
+    float ang = ((uint16_t)(anglPuQ16 * order)) * (float)(1.0f / 65536.0f);
+    return Acos * __cospuf32(ang) + Asin * __sinpuf32(ang);
 }
