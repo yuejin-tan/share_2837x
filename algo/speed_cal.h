@@ -12,6 +12,9 @@ struct SpeedCal_struct
     uint16_t lastThetaE;
 };
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(speedCal_init)
+#endif
 static inline void speedCal_init(struct SpeedCal_struct* hSpeedCal, struct LPF_Ord1_2_struct* hLPF_init, uint16_t thetaE)
 {
     hSpeedCal->omegaE = 0;
@@ -20,6 +23,9 @@ static inline void speedCal_init(struct SpeedCal_struct* hSpeedCal, struct LPF_O
     hSpeedCal->hLPF = hLPF_init;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(speedCal_update)
+#endif
 static inline float speedCal_update(struct SpeedCal_struct* hSpeedCal, uint16_t thetaE)
 {
     int16_t deltaThetaERaw = thetaE - hSpeedCal->lastThetaE;
@@ -30,6 +36,9 @@ static inline float speedCal_update(struct SpeedCal_struct* hSpeedCal, uint16_t 
     return hSpeedCal->omegaE;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(speedCal_getAns)
+#endif
 static inline float speedCal_getAns(struct SpeedCal_struct* hSpeedCal)
 {
     return hSpeedCal->omegaE;

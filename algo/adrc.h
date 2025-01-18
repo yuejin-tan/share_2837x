@@ -71,6 +71,9 @@ static inline void adrc_init(struct ADRC_struct* hADRC, float gamma, float cu1, 
     hADRC->b0_k = 1.0f;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(adrc_update)
+#endif
 static inline float adrc_update(struct ADRC_struct* hADRC, float UdcRef, float UdcFbk, float omega_m)
 {
     hADRC->b0 = omega_m * ((float)(2.0f / MATLAB_PARA_C_dclink)) * hADRC->b0_k;
@@ -98,6 +101,9 @@ static inline float adrc_update(struct ADRC_struct* hADRC, float UdcRef, float U
     return hADRC->u;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(adrc_update2)
+#endif
 static inline float adrc_update2(struct ADRC_struct* hADRC, float UdcRef, float UdcFbk, float omega_m)
 {
     hADRC->b0 = omega_m * ((float)(2.0f / MATLAB_PARA_C_dclink)) * hADRC->b0_k;
@@ -127,6 +133,9 @@ static inline float adrc_update2(struct ADRC_struct* hADRC, float UdcRef, float 
     return hADRC->u;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(adrc_clear)
+#endif
 static inline void adrc_clear(struct ADRC_struct* hADRC)
 {
     hADRC->z1 = 0;

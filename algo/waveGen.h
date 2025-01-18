@@ -41,6 +41,9 @@ float targetSine(float freq, float amp, float offset);
  * @param[in] stepSize 斜坡步长
  * @return float 获得的指令值
  */
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(targetRamp)
+#endif
 static inline float targetRamp(float finalVal, float lastTarget, float stepSize)
 {
     if (finalVal > lastTarget)

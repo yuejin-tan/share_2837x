@@ -11,6 +11,9 @@ struct LMSanf_struct
     float mu;
 };
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(LMSanfInit)
+#endif
 static inline void LMSanfInit(struct LMSanf_struct* hLMSanf)
 {
     hLMSanf->W[0] = 0;
@@ -23,6 +26,9 @@ static inline void LMSanfInit(struct LMSanf_struct* hLMSanf)
     hLMSanf->mu = 0.001;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(LMSanfUpdate)
+#endif
 static inline float LMSanfUpdate(struct LMSanf_struct* hLMSanf, uint16_t angle, float input)
 {
     float thetaPU1 = ((uint16_t)(angle * 1)) * (float)(1.0f / 65536.0f);
@@ -54,6 +60,9 @@ static inline float LMSanfUpdate(struct LMSanf_struct* hLMSanf, uint16_t angle, 
     return y;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(harmCalcUtil)
+#endif
 static inline float harmCalcUtil(uint16_t anglPuQ16, uint16_t order, float Acos, float Asin)
 {
     float ang = ((uint16_t)(anglPuQ16 * order)) * (float)(1.0f / 65536.0f);

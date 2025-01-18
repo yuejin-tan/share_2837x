@@ -21,6 +21,9 @@ extern float TE_IQ_MTPA_2WAY_TAB[];
 
 float lookUp_1d_lin(float xIn, const float xTab[], const float yTab[], int16_t* hPrevIndex, int16_t maxIndex);
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(lookUp_1d_lin_puX)
+#endif
 static inline float lookUp_1d_lin_puX(float xIn, const float yTab[], int16_t maxIndex)
 {
     float frac;

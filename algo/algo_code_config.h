@@ -27,6 +27,9 @@ extern float vECAP_1CYCLE_VAL_INV;
 extern int16_t vPWM_LOAD_VAL_I;
 extern int16_t vPWM_CMP_DEFAILT_VAL_I;
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(algo_clk_cfg)
+#endif
 static inline void algo_clk_cfg(uint16_t pwm_freq)
 {
     vCTRL_FREQ = pwm_freq * MATLAB_PARA_ctrl_freq_mul;

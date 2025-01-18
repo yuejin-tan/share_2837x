@@ -15,12 +15,18 @@ struct SVPWM_struct
     int16_t epwmW;
 };
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(SVPWM_setUdc)
+#endif
 static inline void SVPWM_setUdc(struct SVPWM_struct* hSVPWM, float Udc)
 {
     hSVPWM->Udc = Udc;
     hSVPWM->Udc_inv = 1.0f / Udc;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(SVPWM_init)
+#endif
 static inline void SVPWM_init(struct SVPWM_struct* hSVPWM, float Udc)
 {
     SVPWM_setUdc(hSVPWM, Udc);
@@ -32,7 +38,11 @@ static inline void SVPWM_init(struct SVPWM_struct* hSVPWM, float Udc)
 
 
 // 带有过调制的SVPWM计算，改自袁雷一书
-static inline void SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float Ube)
+// 返回值：过调制情况 0：无 1：I区 2：2区
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(SVPWM_dutyCal)
+#endif
+static inline int16_t SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float Ube)
 {
 #define SQRT_3 1.73205F
 
@@ -44,6 +54,7 @@ static inline void SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float U
 
     // 变量初始化
     int16_t sector = 0;
+    int16_t overMod = 0;
 
     // 扇区计算
     if (X > 0)
@@ -94,12 +105,14 @@ static inline void SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float U
                 // II区过调制
                 T1 = hSVPWM->Udc;
                 T2 = 0;
+                overMod = 2;
             }
             else
             {
                 // I区过调制
                 T1 = T1 / (T1 + T2) * hSVPWM->Udc;
                 T2 = hSVPWM->Udc - T1;
+                overMod = 1;
             }
         }
         else
@@ -109,12 +122,14 @@ static inline void SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float U
                 // II区过调制
                 T1 = 0;
                 T2 = hSVPWM->Udc;
+                overMod = 2;
             }
             else
             {
                 // I区过调制
                 T1 = T1 / (T1 + T2) * hSVPWM->Udc;
                 T2 = hSVPWM->Udc - T1;
+                overMod = 1;
             }
         }
     }
@@ -159,9 +174,14 @@ static inline void SVPWM_dutyCal(struct SVPWM_struct* hSVPWM, float Ual, float U
         hSVPWM->epwmW = ta * hSVPWM->Udc_inv * vPWM_LOAD_VAL + 0.5f;
         break;
     }
+
+    return overMod;
 }
 
 // 快速SVPWM计算方法，但过调制时不能按原方向缩回六边形中
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(SVPWM_dutyCal2)
+#endif
 static inline void SVPWM_dutyCal2(struct SVPWM_struct* hSVPWM, float Ual, float Ube)
 {
     const float one_div_2 = 0.5;

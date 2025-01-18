@@ -17,6 +17,9 @@ struct PIctrl_struct
     float ans;
 };
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_init)
+#endif
 static inline void PIctrl_init(struct PIctrl_struct* hPIctrl, float kp_init, float ki_init, float kb_init, float max_init, float min_init)
 {
     hPIctrl->kp = kp_init;
@@ -28,6 +31,9 @@ static inline void PIctrl_init(struct PIctrl_struct* hPIctrl, float kp_init, flo
     hPIctrl->ans = 0;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_Iloop_cfg)
+#endif
 static inline void PIctrl_Iloop_cfg(struct PIctrl_struct* hPIctrl, float Iloop_bw_factor, float Ldq, float Rall, float max_init, float min_init)
 {
     float alpha = vCTRL_FREQ * Iloop_bw_factor;
@@ -40,6 +46,9 @@ static inline void PIctrl_Iloop_cfg(struct PIctrl_struct* hPIctrl, float Iloop_b
     hPIctrl->ans = 0;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_bCalc)
+#endif
 static inline float PIctrl_update_bCalc(struct PIctrl_struct* hPIctrl, float delta)
 {
     hPIctrl->integral += hPIctrl->ki * delta;
@@ -57,6 +66,9 @@ static inline float PIctrl_update_bCalc(struct PIctrl_struct* hPIctrl, float del
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_bCalc2)
+#endif
 static inline float PIctrl_update_bCalc2(struct PIctrl_struct* hPIctrl, float delta)
 {
     hPIctrl->integral += hPIctrl->ki * delta * vCTRL_TS;
@@ -74,6 +86,9 @@ static inline float PIctrl_update_bCalc2(struct PIctrl_struct* hPIctrl, float de
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_clamp)
+#endif
 static inline float PIctrl_update_clamp(struct PIctrl_struct* hPIctrl, float delta)
 {
     float delta_intg = hPIctrl->ki * delta;
@@ -101,6 +116,9 @@ static inline float PIctrl_update_clamp(struct PIctrl_struct* hPIctrl, float del
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_clamp2)
+#endif
 static inline float PIctrl_update_clamp2(struct PIctrl_struct* hPIctrl, float delta)
 {
     float delta_intg = hPIctrl->ki * delta * vCTRL_TS;
@@ -128,6 +146,9 @@ static inline float PIctrl_update_clamp2(struct PIctrl_struct* hPIctrl, float de
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_clamp_comp)
+#endif
 static inline float PIctrl_update_clamp_comp(struct PIctrl_struct* hPIctrl, float delta, float compVal)
 {
     float delta_intg = hPIctrl->ki * delta;
@@ -155,6 +176,9 @@ static inline float PIctrl_update_clamp_comp(struct PIctrl_struct* hPIctrl, floa
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_clamp_comp2)
+#endif
 static inline float PIctrl_update_clamp_comp2(struct PIctrl_struct* hPIctrl, float delta, float compVal)
 {
     float delta_intg = hPIctrl->ki * delta * vCTRL_TS;
@@ -182,6 +206,9 @@ static inline float PIctrl_update_clamp_comp2(struct PIctrl_struct* hPIctrl, flo
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_noSat)
+#endif
 static inline float PIctrl_update_noSat(struct PIctrl_struct* hPIctrl, float delta)
 {
     hPIctrl->integral += hPIctrl->ki * delta;
@@ -189,6 +216,9 @@ static inline float PIctrl_update_noSat(struct PIctrl_struct* hPIctrl, float del
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_noSat2)
+#endif
 static inline float PIctrl_update_noSat2(struct PIctrl_struct* hPIctrl, float delta)
 {
     hPIctrl->integral += hPIctrl->ki * delta * vCTRL_TS;
@@ -196,6 +226,9 @@ static inline float PIctrl_update_noSat2(struct PIctrl_struct* hPIctrl, float de
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_intgOnly)
+#endif
 static inline float PIctrl_update_intgOnly(struct PIctrl_struct* hPIctrl, float delta)
 {
     hPIctrl->integral += hPIctrl->ki * delta;
@@ -203,6 +236,9 @@ static inline float PIctrl_update_intgOnly(struct PIctrl_struct* hPIctrl, float 
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_update_intgOnly2)
+#endif
 static inline float PIctrl_update_intgOnly2(struct PIctrl_struct* hPIctrl, float delta)
 {
     hPIctrl->integral += hPIctrl->ki * delta * vCTRL_TS;
@@ -210,22 +246,34 @@ static inline float PIctrl_update_intgOnly2(struct PIctrl_struct* hPIctrl, float
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_setIntg)
+#endif
 static inline void PIctrl_setIntg(struct PIctrl_struct* hPIctrl, float intgVal)
 {
     hPIctrl->integral = intgVal;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_getAns)
+#endif
 static inline float PIctrl_getAns(struct PIctrl_struct* hPIctrl)
 {
     return hPIctrl->ans;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_setKpKi_clamp)
+#endif
 static inline void PIctrl_setKpKi_clamp(struct PIctrl_struct* hPIctrl, float newKp, float newKi)
 {
     hPIctrl->kp = newKp;
     hPIctrl->ki = newKi;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_setKpKi_bcalc)
+#endif
 static inline void PIctrl_setKpKi_bcalc(struct PIctrl_struct* hPIctrl, float newKp, float newKi)
 {
     hPIctrl->kp = newKp;
@@ -233,6 +281,9 @@ static inline void PIctrl_setKpKi_bcalc(struct PIctrl_struct* hPIctrl, float new
     hPIctrl->kb = newKi;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_svpwmBoundSet)
+#endif
 static inline void PIctrl_svpwmBoundSet(struct PIctrl_struct* hPIctrl, float newUdc)
 {
     hPIctrl->max = newUdc;

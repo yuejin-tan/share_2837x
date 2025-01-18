@@ -155,17 +155,26 @@ static inline void OECA_init(struct OECA_struct* hOECA, struct LPF_Ord1_2_struct
 }
 
 // 归一化到 0-1
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(OECA_util_angle_norm)
+#endif
 static inline float OECA_util_angle_norm(float angle)
 {
     return angle - floorf(angle);
 }
 
 // 归一化到 -0.5-0.5
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(OECA_util_angle_norm2)
+#endif
 static inline float OECA_util_angle_norm2(float angle)
 {
     return angle - floorf(angle + 0.5f);
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(OECA_pllCalc)
+#endif
 static inline float OECA_pllCalc(struct OECA_struct* hOECA)
 {
     float deltaTheta = OECA_util_angle_norm2(hOECA->theta_eComp - hOECA->theta_pll);
@@ -175,6 +184,9 @@ static inline float OECA_pllCalc(struct OECA_struct* hOECA)
     return hOECA->theta_pll;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(OECA_PICalc)
+#endif
 static inline float OECA_PICalc(struct OECA_struct* hOECA)
 {
     hOECA->intg_eComp = OECA_util_angle_norm(hOECA->intg_eComp - hOECA->omegaOB * hOECA->ki_eComp);
@@ -182,6 +194,9 @@ static inline float OECA_PICalc(struct OECA_struct* hOECA)
     return OECA_util_angle_norm(0.5f - hOECA->theta_eComp);
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(OECA_algoStaSet)
+#endif
 static inline void OECA_algoStaSet(struct OECA_struct* hOECA, float initVal)
 {
     hOECA->intg_eComp = initVal;
@@ -190,11 +205,17 @@ static inline void OECA_algoStaSet(struct OECA_struct* hOECA, float initVal)
     hOECA->theta_pll = initVal;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(OECA_getSweepTheta)
+#endif
 static inline float OECA_getSweepTheta(struct OECA_struct* hOECA)
 {
     return __divf32((float)hOECA->timeCnt, (float)hOECA->timeCntMax);
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(OECA_omegaOB)
+#endif
 static inline float OECA_omegaOB(struct OECA_struct* hOECA, float thetaIn)
 {
     float omegaRaw = OECA_util_angle_norm2(thetaIn - hOECA->lastThetaIn) * vCTRL_FREQ * (float)(M_PI * 2.0);
@@ -203,6 +224,9 @@ static inline float OECA_omegaOB(struct OECA_struct* hOECA, float thetaIn)
     return hOECA->omegaOB;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(Goertz_init)
+#endif
 static inline void Goertz_init(struct Goertz_struct* hGeotz, int k, int N)
 {
     hGeotz->k = k;
@@ -219,6 +243,9 @@ static inline void Goertz_init(struct Goertz_struct* hGeotz, int k, int N)
 
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(Goertz_reset)
+#endif
 static inline void Goertz_reset(struct Goertz_struct* hGeotz)
 {
     hGeotz->wTab[0] = 0;
@@ -226,6 +253,9 @@ static inline void Goertz_reset(struct Goertz_struct* hGeotz)
     hGeotz->wTab[2] = 0;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(Goertz_iter)
+#endif
 static inline float Goertz_iter(struct Goertz_struct* hGeotz, float inVal)
 {
     hGeotz->wTab[0] = inVal + 2.0f * hGeotz->cosVal * hGeotz->wTab[1] - hGeotz->wTab[2];
@@ -235,6 +265,9 @@ static inline float Goertz_iter(struct Goertz_struct* hGeotz, float inVal)
     return hGeotz->wTab[0];
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(Goertz_getAns)
+#endif
 static inline void Goertz_getAns(struct Goertz_struct* hGeotz)
 {
     float N_2 = __divf32(2.0f, (float)hGeotz->N);

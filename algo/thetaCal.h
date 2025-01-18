@@ -13,6 +13,9 @@ struct ThataCal_struct
 #include "math.h"
 #include "algo_code_config.h"
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(_calSinCos)
+#endif
 static inline void _calSinCos(struct ThataCal_struct* hThetaCal)
 {
     hThetaCal->thetaSin = __sinpuf32(hThetaCal->theta);
@@ -20,6 +23,9 @@ static inline void _calSinCos(struct ThataCal_struct* hThetaCal)
     hThetaCal->ifNeedTriCal = 0;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_init)
+#endif
 static inline void thetaCal_init(struct ThataCal_struct* hThetaCal)
 {
     hThetaCal->theta = 0;
@@ -28,6 +34,9 @@ static inline void thetaCal_init(struct ThataCal_struct* hThetaCal)
     hThetaCal->ifNeedTriCal = 0;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_setTheta)
+#endif
 static inline void thetaCal_setTheta(struct ThataCal_struct* hThetaCal, float theta)
 {
     hThetaCal->theta = theta - floorf(theta);;
@@ -35,23 +44,35 @@ static inline void thetaCal_setTheta(struct ThataCal_struct* hThetaCal, float th
 }
 
 // 归一化到 0-1
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_util_angle_norm)
+#endif
 static inline float thetaCal_util_angle_norm(float angle)
 {
     return angle - floorf(angle);
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_setTheta_Uint)
+#endif
 static inline void thetaCal_setTheta_Uint(struct ThataCal_struct* hThetaCal, uint16_t theta_uint)
 {
     hThetaCal->theta = theta_uint * (1.0f / 65536.0f);
     hThetaCal->ifNeedTriCal = 1;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_setTheta_noWrap)
+#endif
 static inline void thetaCal_setTheta_noWrap(struct ThataCal_struct* hThetaCal, float theta)
 {
     hThetaCal->theta = theta;
     hThetaCal->ifNeedTriCal = 1;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_getSinVal)
+#endif
 static inline float thetaCal_getSinVal(struct ThataCal_struct* hThetaCal)
 {
     if (hThetaCal->ifNeedTriCal)
@@ -61,6 +82,9 @@ static inline float thetaCal_getSinVal(struct ThataCal_struct* hThetaCal)
     return hThetaCal->thetaSin;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_getCosVal)
+#endif
 static inline float thetaCal_getCosVal(struct ThataCal_struct* hThetaCal)
 {
     if (hThetaCal->ifNeedTriCal)
@@ -70,6 +94,9 @@ static inline float thetaCal_getCosVal(struct ThataCal_struct* hThetaCal)
     return hThetaCal->thetaCos;
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_getTheta)
+#endif
 static inline float thetaCal_getTheta(struct ThataCal_struct* hThetaCal)
 {
     return hThetaCal->theta;

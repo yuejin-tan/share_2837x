@@ -12,6 +12,9 @@
 #include "SVPWM.h"
 #include "transform.h"
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(dbComp)
+#endif
 static inline void dbComp(struct SVPWM_struct* hSVPWM, float thetaI_add30degPu, int compVal)
 {
     int idx = thetaI_add30degPu * 6.0f;
@@ -53,11 +56,17 @@ static inline void dbComp(struct SVPWM_struct* hSVPWM, float thetaI_add30degPu, 
     }
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(dbComp2_UdcOffset)
+#endif
 static inline float dbComp2_UdcOffset(float Udc, float offset)
 {
     return __fmax(Udc - offset, 1.0f);
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(dbComp2_up)
+#endif
 static inline void dbComp2_up(struct SVPWM_struct* hSVPWM, struct Trans_struct* hIuvw, float Ithd_1, float compVal)
 {
     hSVPWM->epwmU -= (int16_t)(__fmin(__fmax(hIuvw->U * Ithd_1, 0.0f), 1.0f) * compVal + 0.5f);
@@ -65,6 +74,9 @@ static inline void dbComp2_up(struct SVPWM_struct* hSVPWM, struct Trans_struct* 
     hSVPWM->epwmW -= (int16_t)(__fmin(__fmax(hIuvw->W * Ithd_1, 0.0f), 1.0f) * compVal + 0.5f);
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(dbComp2_down)
+#endif
 static inline void dbComp2_down(struct SVPWM_struct* hSVPWM, struct Trans_struct* hIuvw, float Ithd_1, float compVal)
 {
     hSVPWM->epwmU -= (int16_t)(__fmin(__fmax(hIuvw->U * Ithd_1, -1.0f), 0.0f) * compVal + 0.5f);
@@ -72,6 +84,9 @@ static inline void dbComp2_down(struct SVPWM_struct* hSVPWM, struct Trans_struct
     hSVPWM->epwmW -= (int16_t)(__fmin(__fmax(hIuvw->W * Ithd_1, -1.0f), 0.0f) * compVal + 0.5f);
 }
 
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(dbComp2_all)
+#endif
 static inline void dbComp2_all(struct SVPWM_struct* hSVPWM, struct Trans_struct* hIuvw, float Ithd_1, float compVal)
 {
     hSVPWM->epwmU -= (int16_t)(__fmin(__fmax(hIuvw->U * Ithd_1, -0.5f), 0.5f) * compVal + 0.5f);
