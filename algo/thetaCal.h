@@ -52,6 +52,15 @@ static inline float thetaCal_util_angle_norm(float angle)
     return angle - floorf(angle);
 }
 
+// 归一化到 -0.5-0.5
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_util_angle_norm2)
+#endif
+static inline float thetaCal_util_angle_norm2(float angle)
+{
+    return angle - floorf(angle + 0.5f);
+}
+
 #ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(thetaCal_setTheta_Uint)
 #endif

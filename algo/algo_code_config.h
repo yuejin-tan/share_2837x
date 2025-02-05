@@ -72,6 +72,11 @@ static inline float __atan2puf32(float y, float x)
     return atan2f(y, x) * (float)(1.0 / M_PI / 2.0);
 }
 
+static inline float __atanpuf32(float x)
+{
+    return atanf(x) * (float)(1.0 / M_PI / 2.0);
+}
+
 static inline float __divf32(float num, float denom)
 {
     return num / denom;

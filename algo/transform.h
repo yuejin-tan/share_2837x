@@ -16,6 +16,8 @@ struct Trans_struct
     float q;
 
     float abdq0;
+
+    float abs2;
 };
 
 // -------- 3 ----------
@@ -187,28 +189,44 @@ static inline void trans2_dq2uvw(struct Trans_struct* hTrans, struct ThataCal_st
 #ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(transX_uv02w)
 #endif
-static inline void transX_uv02w(struct Trans_struct* hTrans)
+static inline float transX_uv02w(struct Trans_struct* hTrans)
 {
     const float matrix_coeff_3 = 3.0f;
-    hTrans->W = matrix_coeff_3 * hTrans->abdq0 - hTrans->U - hTrans->V;
+    return hTrans->W = matrix_coeff_3 * hTrans->abdq0 - hTrans->U - hTrans->V;
 }
 
 #ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(transX_uw02v)
 #endif
-static inline void transX_uw02v(struct Trans_struct* hTrans)
+static inline float transX_uw02v(struct Trans_struct* hTrans)
 {
     const float matrix_coeff_3 = 3.0f;
-    hTrans->V = matrix_coeff_3 * hTrans->abdq0 - hTrans->U - hTrans->W;
+    return hTrans->V = matrix_coeff_3 * hTrans->abdq0 - hTrans->U - hTrans->W;
 }
 
 #ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(transX_vw02u)
 #endif
-static inline void transX_vw02u(struct Trans_struct* hTrans)
+static inline float transX_vw02u(struct Trans_struct* hTrans)
 {
     const float matrix_coeff_3 = 3.0f;
-    hTrans->U = matrix_coeff_3 * hTrans->abdq0 - hTrans->V - hTrans->W;
+    return hTrans->U = matrix_coeff_3 * hTrans->abdq0 - hTrans->V - hTrans->W;
+}
+
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(transX_albe2abs2)
+#endif
+static inline float transX_albe2abs2(struct Trans_struct* hTrans)
+{
+    return hTrans->abs2 = hTrans->al * hTrans->al + hTrans->be * hTrans->be;
+}
+
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(transX_dq2abs2)
+#endif
+static inline float transX_dq2abs2(struct Trans_struct* hTrans)
+{
+    return hTrans->abs2 = hTrans->d * hTrans->d + hTrans->q * hTrans->q;
 }
 
 #endif // TRANSFORM_H
