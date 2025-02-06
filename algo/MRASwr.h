@@ -27,7 +27,7 @@ struct MRASwr_struct
     struct Trans_struct Ucomp;
 
     struct ThataCal_struct thetaE;
-    struct ThataCal_struct thetaLPF;
+    struct ThataCal_struct dThetaLPF;
 
     struct LPF_Ord1_2_struct PalLPF;
     struct LPF_Ord1_2_struct PbeLPF;
@@ -68,7 +68,7 @@ static inline void MRAS_wr_init(struct MRASwr_struct* hMRAS, struct PIctrl_struc
 
     hMRAS->We = 0;
     thetaCal_init(&hMRAS->thetaE);
-    thetaCal_init(&hMRAS->thetaLPF);
+    thetaCal_init(&hMRAS->dThetaLPF);
 
 #ifdef TYJ_TEST
     // 仿真时加入的初始角度误差
@@ -128,7 +128,7 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
     hMRAS->Psi_U.al = LPF_Ord1_update_kahan(&hMRAS->PalLPF, Us->al - hMRAS->Rs * Is->al) * hMRAS->lpfGain;
     hMRAS->Psi_U.be = LPF_Ord1_update_kahan(&hMRAS->PbeLPF, Us->be - hMRAS->Rs * Is->be) * hMRAS->lpfGain;
     // 旋转修正相移
-    trans2_albe2dq(&hMRAS->Psi_U, &hMRAS->thetaLPF);
+    trans2_albe2dq(&hMRAS->Psi_U, &hMRAS->dThetaLPF);
 
 
     // 由albe轴下计算更新观测值
@@ -136,7 +136,7 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
     // 使用相移修正的值
     hMRAS->WeErr = (hMRAS->Psi_I.al * hMRAS->Psi_U.q - hMRAS->Psi_I.be * hMRAS->Psi_U.d) / hMRAS->Psi_I.abs2;
     hMRAS->We = PIctrl_update_noSat2(hMRAS->wPI, hMRAS->WeErr);
-    // 计算该角速度对应的修正角，加入滤波
+    // 计算该角速度对应的修正角，加入滤波，该项对延时不敏感，可适当打乱，以提高代码性能
     if (fabsf(hMRAS->wPI->integral) < hMRAS->lpfW)
     {
         // 限制角度，低速时放弃
@@ -147,15 +147,16 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
         // 采用积分项计算相移，减小噪声影响
         LPF_Ord1_update(&hMRAS->compLPF, __atanpuf32(hMRAS->lpfW / hMRAS->wPI->integral));
 
-        // 这时候角度才可能收敛，考虑在电流足够大时更新电阻
+        // 考虑在电流足够大，且角度很稳定时才缓慢更新电阻
+        // 电阻辨识有问题
         if (Is->abs2 > hMRAS->Is2Min)
         {
-            hMRAS->RsErr = (Is->al * (hMRAS->Psi_U.al - hMRAS->Psi_I.al) + Is->be * (hMRAS->Psi_U.be - hMRAS->Psi_I.be)) / Is->abs2;
+            hMRAS->RsErr = -(Is->al * (hMRAS->Psi_U.al - hMRAS->Psi_I.al) + Is->be * (hMRAS->Psi_U.be - hMRAS->Psi_I.be)) / Is->abs2;
             hMRAS->Rs = PIctrl_update_clamp(hMRAS->RsPI, hMRAS->RsErr);
         }
     }
-    thetaCal_setTheta(&hMRAS->thetaLPF, LPF_Ord1_2_getVal(&hMRAS->compLPF));
-    hMRAS->lpfGain = 1.0f / (thetaCal_getCosVal(&hMRAS->thetaLPF) * hMRAS->lpfW);
+    thetaCal_setTheta(&hMRAS->dThetaLPF, LPF_Ord1_2_getVal(&hMRAS->compLPF));
+    hMRAS->lpfGain = 1.0f / (thetaCal_getCosVal(&hMRAS->dThetaLPF) * hMRAS->lpfW);
 
     // 仿真调试
 
@@ -164,7 +165,7 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
     if (flowCtrlCnt1++ == (2.0 * MATLAB_PARA_ctrl_freq))
     {
         // 手动改变电阻
-        hMRAS->Rs = -0.015;
+        hMRAS->Rs = 0.015;
         PIctrl_setIntg(hMRAS->RsPI, hMRAS->Rs);
     }
 #endif
