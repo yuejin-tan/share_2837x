@@ -104,7 +104,7 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
     hMRAS->Psi_I.d = Is->d * MATLAB_PARA_Ld + MATLAB_PARA_faif;
     hMRAS->Psi_I.q = Is->q * MATLAB_PARA_Lq;
     trans2_dq2albe(&hMRAS->Psi_I, &hMRAS->thetaE);
-    hMRAS->Psi_I.abdq0 = fmaxf(transX_albe2abs2(&hMRAS->Psi_I), 1e-6);
+    hMRAS->Psi_I.abs2 = fmaxf(transX_albe2abs2(&hMRAS->Psi_I), 1e-6);
 
     // 比较电流模型磁链和电压模型磁链，计算PI修正值
     // hMRAS->Ucomp.al = PIctrl_update_noSat2(hMRAS->PsiPI1, hMRAS->Psi_I.al - hMRAS->Psi_U.al);
@@ -146,14 +146,6 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
     {
         // 采用积分项计算相移，减小噪声影响
         LPF_Ord1_update(&hMRAS->compLPF, __atanpuf32(hMRAS->lpfW / hMRAS->wPI->integral));
-
-        // 考虑在电流足够大，且角度很稳定时才缓慢更新电阻
-        // 电阻辨识有问题
-        if (Is->abs2 > hMRAS->Is2Min)
-        {
-            hMRAS->RsErr = -(Is->al * (hMRAS->Psi_U.al - hMRAS->Psi_I.al) + Is->be * (hMRAS->Psi_U.be - hMRAS->Psi_I.be)) / Is->abs2;
-            hMRAS->Rs = PIctrl_update_clamp(hMRAS->RsPI, hMRAS->RsErr);
-        }
     }
     thetaCal_setTheta(&hMRAS->dThetaLPF, LPF_Ord1_2_getVal(&hMRAS->compLPF));
     hMRAS->lpfGain = 1.0f / (thetaCal_getCosVal(&hMRAS->dThetaLPF) * hMRAS->lpfW);
@@ -165,8 +157,22 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
     if (flowCtrlCnt1++ == (2.0 * MATLAB_PARA_ctrl_freq))
     {
         // 手动改变电阻
-        hMRAS->Rs = 0.015;
-        PIctrl_setIntg(hMRAS->RsPI, hMRAS->Rs);
+        // hMRAS->Rs = 0.015;
+        // PIctrl_setIntg(hMRAS->RsPI, hMRAS->Rs);
+    }
+
+    static int32_t flowCtrlCnt2 = 0;
+    if (flowCtrlCnt2++ >= (1.0 * MATLAB_PARA_ctrl_freq))
+    {
+        // 考虑在电流足够大，且角度很稳定时才缓慢更新电阻
+        // 电阻辨识有问题
+        if (Is->abs2 > hMRAS->Is2Min)
+        {
+            hMRAS->RsErr = (Is->al * (hMRAS->Psi_U.d - hMRAS->Psi_I.al) + Is->be * (hMRAS->Psi_U.q - hMRAS->Psi_I.be)) / Is->abs2;
+            hMRAS->RsErr = (Is->al * (hMRAS->Psi_U.d - hMRAS->Psi_I.al) ) / Is->abs2;
+            // hMRAS->RsErr = (hMRAS->Psi_I.al * (hMRAS->Psi_U.al - hMRAS->Psi_I.al) + hMRAS->Psi_I.be * (hMRAS->Psi_U.be - hMRAS->Psi_I.be)) / hMRAS->Psi_I.abs2;
+            hMRAS->Rs = PIctrl_update_clamp(hMRAS->RsPI, hMRAS->RsErr);
+        }
     }
 #endif
 
@@ -181,6 +187,84 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
     // hMRAS->We = PIctrl_update_noSat2(hMRAS->wPI, hMRAS->WeErr);
     // // debug
     // trans2_dq2albe(&hMRAS->Psi_U, &hMRAS->thetaE);
+
+
+    // 更新观测角度
+    thetaCal_setTheta(&hMRAS->thetaE, thetaCal_getTheta(&hMRAS->thetaE) + hMRAS->We * vCTRL_TS * (float)(1.0f / 2.0f / M_PI));
+
+    // 输出本周期观测角度
+    return hMRAS->thetaOut;
+}
+
+static inline float MRAS_wr_update2(struct MRASwr_struct* hMRAS, struct Trans_struct* Us, struct Trans_struct* Is)
+{
+    // 该计算放在sigsamp部分
+
+    // thetaOut已在上周期算出
+    hMRAS->thetaOut = thetaCal_getTheta(&hMRAS->thetaE);
+
+    // 计算电流模型的磁链（本周期开始点）
+    trans2_albe2dq(Is, &hMRAS->thetaE);
+    // TODO 磁链查找表
+    hMRAS->Psi_I.d = Is->d * MATLAB_PARA_Ld + MATLAB_PARA_faif;
+    hMRAS->Psi_I.q = Is->q * MATLAB_PARA_Lq;
+    hMRAS->Psi_I.abs2 = fmaxf(transX_dq2abs2(&hMRAS->Psi_I), 1e-6);
+
+    // 使用低通滤波器代替积分器以改善饱和
+    hMRAS->Psi_U.al = LPF_Ord1_update_kahan(&hMRAS->PalLPF, Us->al - hMRAS->Rs * Is->al) * hMRAS->lpfGain;
+    hMRAS->Psi_U.be = LPF_Ord1_update_kahan(&hMRAS->PbeLPF, Us->be - hMRAS->Rs * Is->be) * hMRAS->lpfGain;
+    hMRAS->Psi_U.abs2 = fmaxf(transX_albe2abs2(&hMRAS->Psi_U), 1e-6);
+
+
+    // 计算该角速度对应的修正角，加入滤波，该项对延时不敏感，可适当打乱，以提高代码性能
+    if (fabsf(hMRAS->wPI->integral) < hMRAS->lpfW)
+    {
+        // 限制角度，低速时放弃
+        LPF_Ord1_update(&hMRAS->compLPF, 0);
+    }
+    else
+    {
+        // 采用积分项计算相移，减小噪声影响
+        LPF_Ord1_update(&hMRAS->compLPF, __atanpuf32(hMRAS->lpfW / hMRAS->wPI->integral));
+
+    }
+    hMRAS->lpfGain = 1.0f / (__cospuf32(LPF_Ord1_2_getVal(&hMRAS->compLPF)) * hMRAS->lpfW);
+
+    // 仿真调试
+
+#ifdef TYJ_TEST
+    static int32_t flowCtrlCnt1 = 0;
+    if (flowCtrlCnt1++ == (2.0 * MATLAB_PARA_ctrl_freq))
+    {
+        // 手动改变电阻
+        // hMRAS->Rs = 0.015;
+        // PIctrl_setIntg(hMRAS->RsPI, hMRAS->Rs);
+    }
+
+    static int32_t flowCtrlCnt2 = 0;
+    if (flowCtrlCnt2++ >= (1.5 * MATLAB_PARA_ctrl_freq))
+    {
+        // 考虑在电流足够大，且角度很稳定时才缓慢更新电阻
+        // 电阻辨识有问题
+        if (Is->abs2 > hMRAS->Is2Min)
+        {
+            hMRAS->RsErr = (Is->d * (hMRAS->Psi_U.d - hMRAS->Psi_I.d) + Is->q * (hMRAS->Psi_U.q - hMRAS->Psi_I.q)) / hMRAS->Psi_I.abs2;
+            hMRAS->Rs = PIctrl_update_clamp(hMRAS->RsPI, hMRAS->RsErr);
+        }
+    }
+    hMRAS->RsErr = (hMRAS->Psi_U.abs2 - hMRAS->Psi_I.abs2) / hMRAS->Psi_I.abs2;
+#endif
+
+    // 尝试将电压模型由albe直接变换过来
+    // 旋转修正相移
+    thetaCal_setTheta(&hMRAS->dThetaLPF, LPF_Ord1_2_getVal(&hMRAS->compLPF) + thetaCal_getTheta(&hMRAS->thetaE));
+    trans2_albe2dq(&hMRAS->Psi_U, &hMRAS->dThetaLPF);
+
+    // 不修正相移
+    // trans2_albe2dq(&hMRAS->Psi_U, &hMRAS->thetaE);
+
+    hMRAS->WeErr = (hMRAS->Psi_I.d * hMRAS->Psi_U.q - hMRAS->Psi_I.q * hMRAS->Psi_U.d) / hMRAS->Psi_I.abs2;
+    hMRAS->We = PIctrl_update_noSat2(hMRAS->wPI, hMRAS->WeErr);
 
     // 更新观测角度
     thetaCal_setTheta(&hMRAS->thetaE, thetaCal_getTheta(&hMRAS->thetaE) + hMRAS->We * vCTRL_TS * (float)(1.0f / 2.0f / M_PI));
