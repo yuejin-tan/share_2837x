@@ -51,5 +51,8 @@ static inline float lookUp_1d_lin_puX(float xIn, const float yTab[], int16_t max
     return yAns;
 }
 
+// ztab: z_x0_y0 z_x0_y1 ... z_x0_yN z_x1_y0 ... z_xN_yN
+float lookUp_2d_lin_puX(float xIn, float yIn, const float zTab[], int16_t maxIdxX, int16_t maxIdxY);
+
 #endif /* ALGO_CODE_INC_INTERP_TAB_H_ */
 
