@@ -140,18 +140,20 @@ static inline float LPF_Ord2_update_kahan(struct LPF_Ord1_2_struct* hLPF_Ord1_2,
 #ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(LPF_Ord2_setVal)
 #endif
-static inline void LPF_Ord2_setVal(struct LPF_Ord1_2_struct* hLPF_Ord1_2, float cVal)
+static inline float LPF_Ord2_setVal(struct LPF_Ord1_2_struct* hLPF_Ord1_2, float cVal)
 {
     hLPF_Ord1_2->C2 = cVal;
     hLPF_Ord1_2->C1 = cVal;
+    return cVal;
 }
 
 #ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(LPF_Ord1_setVal)
 #endif
-static inline void LPF_Ord1_setVal(struct LPF_Ord1_2_struct* hLPF_Ord1_2, float cVal)
+static inline float LPF_Ord1_setVal(struct LPF_Ord1_2_struct* hLPF_Ord1_2, float cVal)
 {
     hLPF_Ord1_2->C1 = cVal;
+    return cVal;
 }
 
 #ifndef TYJ_TEST

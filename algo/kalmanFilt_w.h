@@ -19,11 +19,16 @@ struct KFw_struct
 
     float err[2];
 
+    float R11Min;
+    float R11Max;
+    float R22Min;
+    float R22Max;
+
     struct LPF_Ord1_2_struct R11LPF;
     struct LPF_Ord1_2_struct R22LPF;
 };
 
-static inline void KFw_init(struct KFw_struct* hKFw, float Q33, float R11, float R22)
+static inline void KFw_init(struct KFw_struct* hKFw, float Q33, float R11Max, float R11Min, float R22Max, float R22Min)
 {
     hKFw->x_k_j[0] = 0;
     hKFw->x_k_j[1] = 0;
@@ -61,8 +66,8 @@ static inline void KFw_init(struct KFw_struct* hKFw, float Q33, float R11, float
     hKFw->K[5] = 0;
 
 
-    hKFw->R_tr[0] = R11;
-    hKFw->R_tr[1] = R22;
+    hKFw->R_tr[0] = R11Max;
+    hKFw->R_tr[1] = R22Max;
 
     // Q_tr[0]用来记录原始值
     hKFw->Q_tr[0] = Q33;
@@ -73,17 +78,22 @@ static inline void KFw_init(struct KFw_struct* hKFw, float Q33, float R11, float
     hKFw->err[0] = 0;
     hKFw->err[1] = 0;
 
-    // 截止频率定义为超参数
-    LPF_Ord1_2_cfg(&hKFw->R11LPF, LPF_KAHAN_1_t, vCTRL_TS, 1.0, 0);
-    LPF_Ord1_2_cfg(&hKFw->R22LPF, LPF_KAHAN_1_t, vCTRL_TS, 1.0, 0);
+    hKFw->R11Min = R11Min;
+    hKFw->R11Max = R11Max;
+    hKFw->R22Min = R22Min;
+    hKFw->R22Max = R22Max;
 
-    LPF_Ord1_setVal(&hKFw->R11LPF, R11);
-    LPF_Ord1_setVal(&hKFw->R22LPF, R22);
+    // 截止频率定义为超参数
+    LPF_Ord1_2_cfg(&hKFw->R11LPF, LPF_KAHAN_1_t, vCTRL_TS, 1, 0);
+    LPF_Ord1_2_cfg(&hKFw->R22LPF, LPF_KAHAN_1_t, vCTRL_TS, 1, 0);
+
+    LPF_Ord1_setVal(&hKFw->R11LPF, R11Max);
+    LPF_Ord1_setVal(&hKFw->R22LPF, R22Max);
 
 #ifdef TYJ_TEST
     hKFw->x_k[0] = M_PI / 3.0;
-    hKFw->x_k[1] = 10;
-    hKFw->x_k[2] = 10;
+    hKFw->x_k[1] = 0;
+    hKFw->x_k[2] = 0;
 #endif
 }
 
@@ -97,7 +107,7 @@ static inline float angle_norm_0_2pi(float x)
 }
 
 #ifndef TYJ_TEST
-#pragma FUNC_ALWAYS_INLINE(angle_norm_0_2pi)
+#pragma FUNC_ALWAYS_INLINE(angle_norm_negPi_pi)
 #endif
 static inline float angle_norm_negPi_pi(float x)
 {
@@ -170,8 +180,9 @@ static inline float KFw_update(struct KFw_struct* hKFw, float y1, float y2)
     }
 
     // 自适应更新噪声
-    hKFw->R_tr[0] = LPF_Ord1_update_kahan(&hKFw->R11LPF, hKFw->err[0] * hKFw->err[0]);
-    hKFw->R_tr[1] = LPF_Ord1_update_kahan(&hKFw->R22LPF, hKFw->err[1] * hKFw->err[1]);
+
+    hKFw->R_tr[0] = LPF_Ord1_setVal(&hKFw->R11LPF, __fmin(__fmax(LPF_Ord1_update_kahan(&hKFw->R11LPF, hKFw->err[0] * hKFw->err[0]), hKFw->R11Min), hKFw->R11Max));
+    hKFw->R_tr[1] = LPF_Ord1_setVal(&hKFw->R22LPF, __fmin(__fmax(LPF_Ord1_update_kahan(&hKFw->R22LPF, hKFw->err[1] * hKFw->err[1]), hKFw->R22Min), hKFw->R22Max));
     // hKFw->Q_tr[2] = hKFw->Q_tr[0] * hKFw->R_tr[0] * hKFw->R_tr[1] / (hKFw->R_tr[0] + hKFw->R_tr[1]);
 
     return hKFw->x_k[0];
