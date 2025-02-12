@@ -1,6 +1,10 @@
 #ifndef INCX_THETACAL_H_
 #define INCX_THETACAL_H_
 
+#include "math.h"
+#include "stdint.h"
+#include "algo_code_config.h"
+
 struct ThataCal_struct
 {
     float theta;
@@ -9,9 +13,6 @@ struct ThataCal_struct
 
     int16_t ifNeedTriCal;
 };
-
-#include "math.h"
-#include "algo_code_config.h"
 
 #ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(_calSinCos)
@@ -67,6 +68,15 @@ static inline float thetaCal_util_angle_norm2(float angle)
 static inline void thetaCal_setTheta_Uint(struct ThataCal_struct* hThetaCal, uint16_t theta_uint)
 {
     hThetaCal->theta = theta_uint * (1.0f / 65536.0f);
+    hThetaCal->ifNeedTriCal = 1;
+}
+
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(thetaCal_setThetaSI_noWrap)
+#endif
+static inline void thetaCal_setThetaSI_noWrap(struct ThataCal_struct* hThetaCal, float theta)
+{
+    hThetaCal->theta = theta * (float)(1.0 / 2.0 / M_PI);
     hThetaCal->ifNeedTriCal = 1;
 }
 

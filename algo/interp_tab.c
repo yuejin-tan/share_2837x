@@ -13,7 +13,7 @@
  // 仿真所用插值表
 
  // MTPA情况下转矩和用D轴电流的对应关系，对应转矩为0，1，2……25
-float TE_ID_MTPA_2WAY_TAB[] = {
+const float TE_ID_MTPA_2WAY_TAB[] = {
 -76.4522F,
 -74.1545F,
 -71.8568F,
@@ -68,7 +68,7 @@ float TE_ID_MTPA_2WAY_TAB[] = {
 };
 
 // MTPA情况下转矩和用Q轴电流的对应关系，对应转矩为0，1，2……25
-float TE_IQ_MTPA_2WAY_TAB[] = {
+const float TE_IQ_MTPA_2WAY_TAB[] = {
 -98.9228F,
 -96.5387F,
 -94.1546F,
@@ -204,6 +204,7 @@ float lookUp_2d_lin_puX(float xIn, float yIn, const float zTab[], int16_t maxIdx
 {
     int16_t zLeftIdx;
     int16_t zRightIdx;
+    int16_t tabIdx;
 
     if (xIn <= 0)
     {
@@ -215,13 +216,14 @@ float lookUp_2d_lin_puX(float xIn, float yIn, const float zTab[], int16_t maxIdx
     }
     else
     {
-        zLeftIdx = xIn;
-        zRightIdx = zLeftIdx + 1;
+        tabIdx = xIn;
+        zLeftIdx = tabIdx * (maxIdxY + 1);
+        zRightIdx = zLeftIdx + (maxIdxY + 1);
     }
 
     float zLeft = lookUp_1d_lin_puX(yIn, &zTab[zLeftIdx], maxIdxY);
     float zRight = lookUp_1d_lin_puX(yIn, &zTab[zRightIdx], maxIdxY);
-    float frac = xIn - zLeftIdx;
+    float frac = xIn - tabIdx;
 
     return (zRight - zLeft) * frac + zLeft;
 }

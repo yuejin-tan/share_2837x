@@ -1,6 +1,7 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 
+#include "stdint.h"
 #include "thetaCal.h"
 
 struct Trans_struct

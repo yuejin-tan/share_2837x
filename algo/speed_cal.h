@@ -37,6 +37,16 @@ static inline float speedCal_update(struct SpeedCal_struct* hSpeedCal, uint16_t 
 }
 
 #ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(speedCal_assign)
+#endif
+static inline void speedCal_assign(struct SpeedCal_struct* hSpeedCal, float omegaE)
+{
+    hSpeedCal->omegaE = omegaE;
+    hSpeedCal->omegaE_inv = __divf32(1.0f, __fmax(hSpeedCal->omegaE, 100.0f));
+    return;
+}
+
+#ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(speedCal_getAns)
 #endif
 static inline float speedCal_getAns(struct SpeedCal_struct* hSpeedCal)

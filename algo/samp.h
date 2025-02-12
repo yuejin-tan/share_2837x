@@ -13,32 +13,28 @@ static inline float getCurSI(int16_t adcVal, float offset)
 }
 
 #ifndef TYJ_TEST
-#pragma FUNC_ALWAYS_INLINE(getThetaESI)
-#endif
-static inline float getThetaESI(uint16_t RDCVal)
-{
-    float thetaE = RDCVal * (float)(MATLAB_PARA_p0 / MATLAB_PARA_RDC_gain / 2.0 / M_PI);
-
-    while (thetaE > 1.0f)
-    {
-        thetaE -= 1.0f;
-    }
-    while (thetaE < 0.0f)
-    {
-        thetaE += 1.0f;
-    }
-
-    return thetaE;
-}
-
-#ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(getThetaEUint)
 #endif
 static inline uint16_t getThetaEUint(uint16_t RDCVal)
 {
     uint16_t thetaE = RDCVal * (uint16_t)(MATLAB_PARA_RDC2ELE_RATIO);
-
     return thetaE;
+}
+
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(getThetaEpu)
+#endif
+static inline float getThetaEpu(uint16_t RDCVal)
+{
+    return getThetaEUint(RDCVal) * (float)(1.0 / 65536.0);
+}
+
+#ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(getThetaESI)
+#endif
+static inline float getThetaESI(uint16_t RDCVal)
+{
+    return getThetaEUint(RDCVal) * (float)(2.0 * M_PI / 65536.0);
 }
 
 #ifndef TYJ_TEST

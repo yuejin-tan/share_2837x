@@ -15,9 +15,9 @@
 #define TE_IDQ_MTPA_2WAY_TAB_OFFSET 25.0F
 #define TE_IDQ_MTPA_2WAY_TAB_MAX 50
 
-extern float TE_IQ_ID0_2WAY_TAB[];
-extern float TE_ID_MTPA_2WAY_TAB[];
-extern float TE_IQ_MTPA_2WAY_TAB[];
+extern const float TE_IQ_ID0_2WAY_TAB[];
+extern const float TE_ID_MTPA_2WAY_TAB[];
+extern const float TE_IQ_MTPA_2WAY_TAB[];
 
 float lookUp_1d_lin(float xIn, const float xTab[], const float yTab[], int16_t* hPrevIndex, int16_t maxIndex);
 
