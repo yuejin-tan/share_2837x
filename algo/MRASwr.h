@@ -150,11 +150,11 @@ static inline float MRAS_wr_update(struct MRASwr_struct* hMRAS, struct Trans_str
         LPF_Ord1_update(&hMRAS->compLPF, __atanpuf32(hMRAS->lpfW / hMRAS->wPI->integral));
 
         // 考虑在电流足够大，且角度稳定时(不处于中低速？)才缓慢更新电阻
-        // if (Is->abs2 > hMRAS->Is2Min)
-        // {
-        //     hMRAS->RsErr = hMRAS->wPI->integral * (Is->be * (hMRAS->Psi_U.d - hMRAS->Psi_I.al) - Is->al * (hMRAS->Psi_U.q - hMRAS->Psi_I.be)) / Is->abs2;
-        //     hMRAS->Rs = PIctrl_update_clamp(hMRAS->RsPI, hMRAS->RsErr);
-        // }
+        if (Is->abs2 > hMRAS->Is2Min)
+        {
+            hMRAS->RsErr = hMRAS->wPI->integral * (Is->be * (hMRAS->Psi_U.d - hMRAS->Psi_I.al) - Is->al * (hMRAS->Psi_U.q - hMRAS->Psi_I.be)) / Is->abs2;
+            hMRAS->Rs = PIctrl_update_clamp(hMRAS->RsPI, hMRAS->RsErr);
+        }
     }
     thetaCal_setTheta(&hMRAS->dThetaLPF, LPF_Ord1_2_getVal(&hMRAS->compLPF));
     hMRAS->lpfGain = 1.0f / (thetaCal_getCosVal(&hMRAS->dThetaLPF) * hMRAS->lpfW);

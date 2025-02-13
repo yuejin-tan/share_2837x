@@ -47,6 +47,17 @@ static inline void PIctrl_Iloop_cfg(struct PIctrl_struct* hPIctrl, float Iloop_b
 }
 
 #ifndef TYJ_TEST
+#pragma FUNC_ALWAYS_INLINE(PIctrl_Iloop_cfg2)
+#endif
+static inline void PIctrl_Iloop_cfg2(struct PIctrl_struct* hPIctrl, float Iloop_bw_factor, float Ldq, float Rall)
+{
+    float alpha = vCTRL_FREQ * Iloop_bw_factor;
+    hPIctrl->kp = alpha * Ldq;
+    hPIctrl->ki = alpha * Rall;
+    hPIctrl->kb = hPIctrl->ki;
+}
+
+#ifndef TYJ_TEST
 #pragma FUNC_ALWAYS_INLINE(PIctrl_update_bCalc)
 #endif
 static inline float PIctrl_update_bCalc(struct PIctrl_struct* hPIctrl, float delta)

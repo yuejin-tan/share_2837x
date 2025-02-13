@@ -7,17 +7,17 @@
 
 struct KFw_struct
 {
-    float x_k_j[3];
-    float x_k[3];
-    float P_k_j[9];
-    float P_k[9];
+    float err[2];
 
-    float K[6];
+    float x_k[3];
+    float P_k[9];
 
     float Q_tr[3];
     float R_tr[2];
 
-    float err[2];
+    float K[6];
+    float x_k_j[3];
+    float P_k_j[9];
 
     float R11Min;
     float R11Max;
@@ -91,6 +91,7 @@ static inline void KFw_init(struct KFw_struct* hKFw, float Q33, float R11Max, fl
     LPF_Ord1_setVal(&hKFw->R22LPF, R22Max);
 
 #ifdef TYJ_TEST
+    // 仿真时改变初值
     hKFw->x_k[0] = M_PI / 3.0;
     hKFw->x_k[1] = 0;
     hKFw->x_k[2] = 0;
