@@ -7,6 +7,8 @@
 
 struct KFw_struct
 {
+    float thetaOutPu;
+
     float err[2];
 
     float x_k[3];
@@ -82,6 +84,8 @@ static inline void KFw_init(struct KFw_struct* hKFw, float Q33, float R11Max, fl
     hKFw->R11Max = R11Max;
     hKFw->R22Min = R22Min;
     hKFw->R22Max = R22Max;
+
+    hKFw->thetaOutPu = 0;
 
     // 截止频率定义为超参数
     LPF_Ord1_2_cfg(&hKFw->R11LPF, LPF_KAHAN_1_t, vCTRL_TS, 1, 0);
@@ -186,7 +190,7 @@ static inline float KFw_update(struct KFw_struct* hKFw, float y1, float y2)
     hKFw->R_tr[1] = LPF_Ord1_setVal(&hKFw->R22LPF, __fmin(__fmax(LPF_Ord1_update_kahan(&hKFw->R22LPF, hKFw->err[1] * hKFw->err[1]), hKFw->R22Min), hKFw->R22Max));
     // hKFw->Q_tr[2] = hKFw->Q_tr[0] * hKFw->R_tr[0] * hKFw->R_tr[1] / (hKFw->R_tr[0] + hKFw->R_tr[1]);
 
-    return hKFw->x_k[0];
+    return hKFw->thetaOutPu = hKFw->x_k[0] * (float)(1.0 / 2.0 / M_PI);
 }
 
 #endif
